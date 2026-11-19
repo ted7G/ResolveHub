@@ -45,7 +45,6 @@ class TicketAdmin(admin.ModelAdmin):
         "Search by subject, customer name, email or company, or a ticket number such as RH-00042."
     )
     date_hierarchy = "created_at"
-    list_select_related = ["customer", "assignee__user"]
     list_per_page = 50
     # Counting every row on each page load gets slow on large tables; the
     # filtered count is still shown.
@@ -88,10 +87,13 @@ class TicketAdmin(admin.ModelAdmin):
         css = {"all": ["tickets/admin.css"]}
 
     def get_queryset(self, request):
+        # Joined here rather than via list_select_related: the changelist skips
+        # list_select_related when the queryset already selects related rows,
+        # and the change view needs the assignee for the permission check.
         return (
             super()
             .get_queryset(request)
-            .select_related("assignee")
+            .select_related("customer", "assignee__user")
             .annotate(comment_count=Count("comments"))
         )
 

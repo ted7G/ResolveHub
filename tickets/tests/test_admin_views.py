@@ -89,3 +89,13 @@ def test_ticket_add_page_only_offers_starting_statuses(superuser_client):
         value for value, _ in response.context["adminform"].form.fields["status"].choices
     ]
     assert status_choices == [Status.NEW, Status.OPEN]
+
+
+def test_ticket_changelist_query_count_does_not_grow_with_rows(
+    superuser_client, make_ticket, make_agent, django_assert_max_num_queries
+):
+    for _ in range(30):
+        make_ticket(assignee=make_agent())
+
+    with django_assert_max_num_queries(15):
+        superuser_client.get(reverse("admin:tickets_ticket_changelist"))

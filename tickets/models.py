@@ -44,6 +44,13 @@ class Customer(models.Model):
         self.email = self.email.strip().lower()
 
 
+class AgentManager(models.Manager):
+    def get_queryset(self):
+        # An agent's display name lives on the user row, and agents are almost
+        # always shown by name (dropdowns, filters, list columns).
+        return super().get_queryset().select_related("user")
+
+
 class Agent(models.Model):
     class Team(models.TextChoices):
         GENERAL = "general", "General support"
@@ -67,6 +74,8 @@ class Agent(models.Model):
         default=True,
         help_text="Untick while the agent is away. Unavailable agents can't receive new assignments.",
     )
+
+    objects = AgentManager()
 
     class Meta:
         ordering = ["user__first_name", "user__last_name"]
