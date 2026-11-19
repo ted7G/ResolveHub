@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Sign-in locked | {{ site_title|default:"ResolveHub" }}{% endblock %}
+
+{% block content %}
+  <h1>Too many failed sign-in attempts</h1>
+  <p>
+    For security, sign-in for this account from your network is paused for
+    15 minutes. If you've forgotten your password, ask a support admin to
+    reset it.
+  </p>
+{% endblock %}

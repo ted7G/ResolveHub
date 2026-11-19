@@ -29,3 +29,7 @@ STATIC_ROOT = None
 
 # Tests never call a real model provider; the ones that need a key set it.
 OPENAI_API_KEY = ""
+
+# Lockouts would interfere with tests that log in repeatedly; the lockout
+# tests switch it back on.
+AXES_ENABLED = False

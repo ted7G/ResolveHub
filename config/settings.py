@@ -7,6 +7,7 @@ development they can live in a `.env` file next to manage.py (see
 falling back to something that only works on a laptop.
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "axes",
     "accounts",
     "tickets",
     "assistant",
@@ -56,6 +58,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Last, so it can turn a lockout raised during login into a 403 page.
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -184,6 +188,25 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = "admin:login"
+
+# Brute-force protection for the login form (django-axes). Five failures for
+# the same username from the same IP lock that pair out for 15 minutes;
+# keying on the pair means an attacker can't lock a real user out everywhere.
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+]
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = timedelta(minutes=15)
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
+# Behind Render's proxy the client address arrives in X-Forwarded-For.
+# Without this every visitor would share the proxy's IP, and per-IP
+# lockouts would turn into per-username lockouts.
+AXES_CLIENT_IP_CALLABLE = "accounts.client_ip.client_ip"
+# Proxies between the internet and the app that append to X-Forwarded-For.
+TRUSTED_PROXY_COUNT = env.int("TRUSTED_PROXY_COUNT", default=1)
 
 SESSION_COOKIE_AGE = 60 * 60 * 8  # one working day
 SESSION_COOKIE_HTTPONLY = True
