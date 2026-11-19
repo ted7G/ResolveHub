@@ -256,6 +256,24 @@ class Ticket(models.Model):
             and self.due_at < timezone.now()
         )
 
+    @classmethod
+    def form_guidance(cls):
+        """Plain-language rules for the form assistant, generated from tickets.rules."""
+        return [
+            "Status workflow, as 'from: allowed next': " + rules.describe_workflow() + ".",
+            "Closed is final. If a customer comes back after closure, open a new ticket.",
+            "New tickets start as New or Open.",
+            "Open, Waiting on customer and Resolved tickets need an assignee.",
+            "Only available agents can be given new tickets.",
+            f"Response deadline counted from creation, by priority: {rules.describe_sla()}. "
+            "Changing the priority recalculates the deadline.",
+            "A ticket is overdue while it is New, Open or Waiting on customer past its deadline.",
+            "Agents can edit tickets assigned to them and unassigned ones; "
+            "support admins can edit any ticket.",
+            "Replies are visible to the customer; internal notes are only for staff. "
+            "Closed tickets can't take new replies.",
+        ]
+
     def transition_to(self, status):
         """Move the ticket to `status` and save it, or raise ValidationError."""
         if status not in Status.values:

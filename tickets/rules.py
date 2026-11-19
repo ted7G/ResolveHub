@@ -64,6 +64,15 @@ def due_at_for(created_at: datetime, priority: str) -> datetime:
     return created_at + timedelta(hours=SLA_HOURS[priority])
 
 
+def describe_workflow() -> str:
+    """E.g. 'New: Open, Resolved, Closed; Open: Waiting on customer, Resolved; ...'."""
+    parts = []
+    for status in Status:
+        targets = [Status(s).label for s in allowed_next_statuses(status)]
+        parts.append(f"{status.label}: {', '.join(targets) or 'nothing (final)'}")
+    return "; ".join(parts)
+
+
 def describe_sla() -> str:
     """Human-readable summary, e.g. 'urgent 4h, high 8h, normal 24h, low 72h'."""
     return ", ".join(f"{Priority(p).label.lower()} {hours}h" for p, hours in SLA_HOURS.items())
