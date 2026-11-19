@@ -1,0 +1,22 @@
+[project]
+name = "resolvehub"
+version = "0.1.0"
+description = "Support ticket tracker built on the Django admin"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.test_settings"
+python_files = ["test_*.py"]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ", "SIM"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "tickets", "assistant"]
