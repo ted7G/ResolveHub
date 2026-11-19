@@ -1,0 +1,35 @@
+/* Status and priority pills for the help desk admin. Colours work on both
+   the light and dark admin themes because each pill sets its own background. */
+
+.rh-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+    color: #1f2937;
+    background: #e5e7eb;
+}
+
+.rh-status-new { background: #dbeafe; color: #1e3a8a; }
+.rh-status-open { background: #dcfce7; color: #14532d; }
+.rh-status-pending { background: #fef9c3; color: #713f12; }
+.rh-status-resolved { background: #e0e7ff; color: #3730a3; }
+.rh-status-closed { background: #e5e7eb; color: #374151; }
+
+.rh-priority-low { background: #f3f4f6; color: #4b5563; }
+.rh-priority-normal { background: #e0f2fe; color: #075985; }
+.rh-priority-high { background: #ffedd5; color: #9a3412; }
+.rh-priority-urgent { background: #fee2e2; color: #991b1b; }
+
+.rh-deadline { white-space: nowrap; }
+.rh-overdue { color: #b91c1c; font-weight: 600; }
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .rh-overdue { color: #f87171; }
+}
+:root[data-theme="dark"] .rh-overdue { color: #f87171; }
+
+.rh-internal-note { color: #92400e; font-weight: 600; }
