@@ -123,8 +123,8 @@ CACHES = {
 
 # --- File storage -----------------------------------------------------------
 #
-# Uploads go to S3-compatible object storage: a MinIO server in production,
-# though Cloudflare R2, Backblaze B2 or AWS S3 work with the same settings.
+# Uploads go to S3-compatible object storage: a Garage server in production,
+# though MinIO, Cloudflare R2, Backblaze B2 or AWS S3 work with the same settings.
 # "local" and "memory" exist only for development and the test suite, and
 # are refused unless DEBUG is on, so production can never quietly write
 # uploads to the container's ephemeral disk.
@@ -141,7 +141,8 @@ if STORAGE_BACKEND == "s3":
             "secret_key": env("S3_SECRET_ACCESS_KEY"),
             "region_name": env("S3_REGION", default="auto"),
             "signature_version": "s3v4",
-            # MinIO needs "path" unless it is set up for bucket subdomains.
+            # Self-hosted servers (Garage, MinIO) need "path" unless they are set
+            # up for bucket subdomains.
             "addressing_style": env("S3_ADDRESSING_STYLE", default=None),
             # The bucket stays private; files are served through short-lived
             # signed URLs generated for users who can already see the ticket.
