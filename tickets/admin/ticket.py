@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.db.models import Count
 
 from tickets.models import Ticket
-from tickets.rules import Status
+from tickets.permissions import can_edit_ticket, readonly_reason
 
 from . import actions, display
 from .filters import AssignmentFilter, DeadlineFilter
@@ -88,16 +88,25 @@ class TicketAdmin(admin.ModelAdmin):
         css = {"all": ["tickets/admin.css"]}
 
     def get_queryset(self, request):
-        return super().get_queryset(request).annotate(comment_count=Count("comments"))
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("assignee")
+            .annotate(comment_count=Count("comments"))
+        )
 
     def has_manage_all_permission(self, request):
         return request.user.has_perm("tickets.manage_all_tickets")
 
     def has_change_permission(self, request, obj=None):
-        # Closed is final, so a closed ticket is read-only for everyone.
-        if obj is not None and obj.status == Status.CLOSED:
+        if not super().has_change_permission(request, obj):
             return False
-        return super().has_change_permission(request, obj)
+        return obj is None or can_edit_ticket(request.user, obj)
+
+    def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
+        if obj is not None and not self.has_change_permission(request, obj):
+            context["readonly_reason"] = readonly_reason(request.user, obj)
+        return super().render_change_form(request, context, add, change, form_url, obj)
 
     def get_search_results(self, request, queryset, search_term):
         queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)

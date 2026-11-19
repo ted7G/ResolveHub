@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+
+{% block form_top %}
+  {% if readonly_reason %}
+    <p class="rh-readonly-note">{{ readonly_reason }}</p>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

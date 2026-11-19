@@ -33,3 +33,11 @@
 :root[data-theme="dark"] .rh-overdue { color: #f87171; }
 
 .rh-internal-note { color: #92400e; font-weight: 600; }
+
+.rh-readonly-note {
+    margin: 0 0 16px;
+    padding: 10px 14px;
+    border-left: 4px solid #d97706;
+    background: #fffbeb;
+    color: #78350f;
+}

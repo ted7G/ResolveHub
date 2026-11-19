@@ -4,10 +4,9 @@ import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 
+from tests.admin_forms import admin_form_data
 from tickets.models import Comment
 from tickets.rules import Status
-
-from .conftest import admin_form_data
 
 pytestmark = pytest.mark.django_db
 

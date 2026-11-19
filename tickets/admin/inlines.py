@@ -46,7 +46,7 @@ class CommentHistoryInline(admin.StackedInline):
     @admin.display(description="Visibility")
     def visibility(self, obj):
         if obj.is_internal:
-            return format_html('<span class="rh-internal-note">Internal note</span>')
+            return format_html('<span class="rh-internal-note">{}</span>', "Internal note")
         return "Visible to customer"
 
     @admin.display(description="Attachment")
