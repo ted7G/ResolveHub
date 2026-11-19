@@ -288,7 +288,9 @@ LOGGING = {
     },
     "root": {"handlers": ["console"], "level": env("LOG_LEVEL", default="INFO")},
     "loggers": {
-        "django.request": {"handlers": ["console"], "level": "WARNING", "propagate": False},
+        # Server errors only: permission denials and 404s are normal use of the
+        # admin and would bury real failures. Failed logins are still logged by axes.
+        "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
     },
 }
 
