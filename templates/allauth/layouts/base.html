@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% comment %}
+  Renders django-allauth's pages (linking GitHub, sign-in errors) inside the
+  admin's look instead of allauth's unstyled default layout.
+{% endcomment %}
+
+{% block title %}{% block head_title %}{% endblock %} | {{ site_title }}{% endblock %}
+
+{% block nav-breadcrumbs %}
+  <nav aria-label="Breadcrumbs">
+    <div class="breadcrumbs"><a href="{% url 'admin:index' %}">Back to the admin</a></div>
+  </nav>
+{% endblock %}

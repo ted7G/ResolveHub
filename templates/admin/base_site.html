@@ -1,6 +1,13 @@
 {% extends "admin/base_site.html" %}
 {% load assistant_tags %}
 
+{% block userlinks %}
+  {% if github_login_enabled %}
+    <a href="{% url 'socialaccount_connections' %}">GitHub sign-in</a> /
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
+
 {% block footer %}
   {{ block.super }}
   {% assistant_widget %}

@@ -1,0 +1,16 @@
+{% extends "admin/login.html" %}
+
+{% block content %}
+  {{ block.super }}
+  {% if github_login_enabled %}
+    <div class="rh-oauth">
+      <form method="post" action="{% url 'github_login' %}?next={{ next|default:'/admin/'|urlencode }}">
+        {% csrf_token %}
+        <div class="submit-row">
+          <input type="submit" value="Sign in with GitHub">
+        </div>
+      </form>
+      <p class="help">Works after you've linked GitHub to your staff account from the admin header.</p>
+    </div>
+  {% endif %}
+{% endblock %}

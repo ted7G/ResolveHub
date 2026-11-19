@@ -14,5 +14,9 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 ]
 
+# GitHub sign-in routes exist only when the integration is configured.
+if settings.GITHUB_LOGIN_ENABLED:
+    urlpatterns.append(path("accounts/", include("allauth.urls")))
+
 if settings.DEBUG and settings.STORAGE_BACKEND == "local":
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

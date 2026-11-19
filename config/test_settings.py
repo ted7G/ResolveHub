@@ -33,3 +33,12 @@ OPENAI_API_KEY = ""
 # Lockouts would interfere with tests that log in repeatedly; the lockout
 # tests switch it back on.
 AXES_ENABLED = False
+
+# Dummy OAuth credentials so the GitHub sign-in views exist in tests.
+# No test talks to GitHub.
+GITHUB_CLIENT_ID = "test-client-id"
+GITHUB_CLIENT_SECRET = "test-client-secret"
+GITHUB_LOGIN_ENABLED = True
+SOCIALACCOUNT_PROVIDERS["github"]["APPS"] = [  # noqa: F405
+    {"client_id": GITHUB_CLIENT_ID, "secret": GITHUB_CLIENT_SECRET}
+]

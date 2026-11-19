@@ -44,6 +44,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "axes",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github",
     "accounts",
     "tickets",
     "assistant",
@@ -56,6 +60,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Last, so it can turn a lockout raised during login into a 403 page.
@@ -75,6 +80,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "accounts.context_processors.sign_in_options",
             ],
         },
     },
@@ -195,6 +201,7 @@ LOGIN_URL = "admin:login"
 AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesStandaloneBackend",
     "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = timedelta(minutes=15)
@@ -207,6 +214,33 @@ AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
 AXES_CLIENT_IP_CALLABLE = "accounts.client_ip.client_ip"
 # Proxies between the internet and the app that append to X-Forwarded-For.
 TRUSTED_PROXY_COUNT = env.int("TRUSTED_PROXY_COUNT", default=1)
+
+# Sign in with GitHub (django-allauth), enabled only when credentials are set.
+# GitHub is an extra way into an existing staff account, never a way to get
+# one: a signed-in user links their GitHub account first, sign-up is closed,
+# and roles stay on the Django user. Accounts are not matched by email,
+# which would let a GitHub account claim a staff login it was never linked to.
+GITHUB_CLIENT_ID = env("GITHUB_CLIENT_ID", default="")
+GITHUB_CLIENT_SECRET = env("GITHUB_CLIENT_SECRET", default="")
+GITHUB_LOGIN_ENABLED = bool(GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET)
+
+SOCIALACCOUNT_ONLY = True  # no allauth password, sign-up or reset pages
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_ADAPTER = "accounts.adapters.ClosedSignupAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.LinkedAccountsOnlyAdapter"
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
+SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_PROVIDERS = {
+    "github": {
+        "SCOPE": ["read:user"],
+        "APPS": (
+            [{"client_id": GITHUB_CLIENT_ID, "secret": GITHUB_CLIENT_SECRET}]
+            if GITHUB_LOGIN_ENABLED
+            else []
+        ),
+    }
+}
+LOGIN_REDIRECT_URL = "/admin/"
 
 SESSION_COOKIE_AGE = 60 * 60 * 8  # one working day
 SESSION_COOKIE_HTTPONLY = True
