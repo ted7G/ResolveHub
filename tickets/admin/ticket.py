@@ -6,7 +6,7 @@ from django.db.models import Count
 from tickets.models import Ticket
 from tickets.rules import Status
 
-from . import display
+from . import actions, display
 from .filters import AssignmentFilter, DeadlineFilter
 from .forms import TicketAdminForm
 from .inlines import AddCommentInline, CommentHistoryInline
@@ -74,11 +74,24 @@ class TicketAdmin(admin.ModelAdmin):
 
     inlines = [CommentHistoryInline, AddCommentInline]
 
+    action_form = actions.TicketActionForm
+    actions = [
+        actions.assign_to_me,
+        actions.assign_to_agent,
+        actions.mark_open,
+        actions.mark_pending,
+        actions.mark_resolved,
+        actions.mark_closed,
+    ]
+
     class Media:
         css = {"all": ["tickets/admin.css"]}
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(comment_count=Count("comments"))
+
+    def has_manage_all_permission(self, request):
+        return request.user.has_perm("tickets.manage_all_tickets")
 
     def has_change_permission(self, request, obj=None):
         # Closed is final, so a closed ticket is read-only for everyone.

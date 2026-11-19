@@ -5,6 +5,7 @@ from django.db.models.functions import Now
 from tickets import rules
 from tickets.models import Agent, Customer, Tag
 
+from . import actions
 from .filters import HasActiveTicketsFilter
 from .inlines import CustomerTicketInline
 
@@ -48,6 +49,7 @@ class AgentAdmin(admin.ModelAdmin):
     search_fields = ["user__first_name", "user__last_name", "user__username", "user__email"]
     list_select_related = ["user"]
     autocomplete_fields = ["user"]
+    actions = [actions.mark_agents_available, actions.mark_agents_away]
 
     def get_queryset(self, request):
         return (
