@@ -1,3 +1,6 @@
+import uuid
+from pathlib import PurePath
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -6,6 +9,7 @@ from django.utils import timezone
 
 from . import rules
 from .rules import Priority, Status
+from .validators import ATTACHMENT_HELP_TEXT, validate_attachment
 
 
 class Customer(models.Model):
@@ -263,3 +267,73 @@ class Ticket(models.Model):
             self.resolved_at = None
         if self.status == Status.CLOSED:
             self.closed_at = self.closed_at or now
+
+
+def attachment_upload_to(instance, filename):
+    # A random object key: the original name is user-controlled, could collide
+    # and would leak through the URL. It is kept in attachment_name instead.
+    extension = PurePath(filename).suffix.lower()
+    return f"attachments/{timezone.now():%Y/%m}/{uuid.uuid4().hex}{extension}"
+
+
+class Comment(models.Model):
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="ticket_comments",
+        help_text="Staff member who wrote it. Empty means the message came from the customer.",
+    )
+    is_internal = models.BooleanField(
+        "internal note",
+        default=False,
+        help_text="Internal notes are for the support team only and are never shown to the customer.",
+    )
+    body = models.TextField(
+        max_length=10_000,
+        help_text="The reply or note itself. Plain text, up to 10,000 characters.",
+    )
+    attachment = models.FileField(
+        upload_to=attachment_upload_to,
+        blank=True,
+        validators=[validate_attachment],
+        help_text=ATTACHMENT_HELP_TEXT,
+    )
+    attachment_name = models.CharField(max_length=255, blank=True, editable=False)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=["ticket", "created_at"], name="comment_ticket_created_idx"),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(author__isnull=True, is_internal=True),
+                name="comment_customer_messages_are_public",
+            ),
+        ]
+        permissions = [
+            ("view_internal_note", "Can see internal notes"),
+        ]
+
+    def __str__(self):
+        kind = "Internal note" if self.is_internal else "Reply"
+        return f"{kind} on {self.ticket.reference}"
+
+    def save(self, *args, **kwargs):
+        if self.attachment and not self.attachment._committed:
+            self.attachment_name = PurePath(self.attachment.name).name[:255]
+        elif not self.attachment:
+            self.attachment_name = ""
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        if self.pk is None and self.ticket_id and self.ticket.status == Status.CLOSED:
+            raise ValidationError(
+                "This ticket is closed, so it can't take new comments. Open a new ticket instead."
+            )
+        if self.is_internal and self.author_id is None:
+            raise ValidationError({"is_internal": "Customer messages can't be internal notes."})
