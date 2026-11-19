@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.functions import Lower
 from django.utils import timezone
@@ -182,6 +183,7 @@ class Ticket(models.Model):
         # a query when the field was deferred.
         self._loaded_status = self.__dict__.get("status") if self.pk else None
         self._loaded_priority = self.__dict__.get("priority") if self.pk else None
+        self._loaded_assignee_id = self.__dict__.get("assignee_id") if self.pk else None
 
     def __str__(self):
         return f"{self.reference} {self.subject}"
@@ -193,6 +195,39 @@ class Ticket(models.Model):
         super().save(*args, **kwargs)
         self._loaded_status = self.status
         self._loaded_priority = self.priority
+        self._loaded_assignee_id = self.assignee_id
+
+    def clean(self):
+        if self.status not in Status.values:
+            return  # field validation already reports this
+        errors = {}
+        previous = self._loaded_status
+
+        if previous is None and self.status not in (Status.NEW, Status.OPEN):
+            errors["status"] = "New tickets start as New or Open."
+        elif previous is not None and not rules.can_transition(previous, self.status):
+            allowed = [Status(s).label for s in rules.allowed_next_statuses(previous)]
+            errors["status"] = (
+                f"A ticket can't go from {Status(previous).label} to "
+                f"{Status(self.status).label}. "
+                + (f"Allowed next: {', '.join(allowed)}." if allowed else "Closed is final.")
+            )
+
+        if self.status in rules.REQUIRES_ASSIGNEE and self.assignee_id is None:
+            errors["assignee"] = (
+                f"Assign an agent before setting the status to {Status(self.status).label}."
+            )
+        elif (
+            self.assignee_id is not None
+            and self.assignee_id != self._loaded_assignee_id
+            and not self.assignee.is_available
+        ):
+            errors["assignee"] = (
+                f"{self.assignee} is marked unavailable and can't take new tickets."
+            )
+
+        if errors:
+            raise ValidationError(errors)
 
     @property
     def reference(self):
@@ -205,6 +240,19 @@ class Ticket(models.Model):
             and self.due_at is not None
             and self.due_at < timezone.now()
         )
+
+    def transition_to(self, status):
+        """Move the ticket to `status` and save it, or raise ValidationError."""
+        if status not in Status.values:
+            raise ValidationError({"status": f"Unknown status {status!r}."})
+        previous = self.status
+        self.status = status
+        try:
+            self.clean()
+        except ValidationError:
+            self.status = previous
+            raise
+        self.save()
 
     def _sync_status_timestamps(self):
         now = timezone.now()
