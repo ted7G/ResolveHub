@@ -204,6 +204,9 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
+# HSTS preload is a long-term commitment for a domain you own; this app runs
+# on a shared platform subdomain, so it's deliberately left off.
+SILENCED_SYSTEM_CHECKS = ["security.W021"]
 
 
 # --- Internationalization ---------------------------------------------------
