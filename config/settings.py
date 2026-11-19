@@ -26,7 +26,12 @@ DEBUG = env.bool("DEBUG", default=False)
 SECRET_KEY = env("SECRET_KEY")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"] if DEBUG else [])
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+# The site is served over HTTPS on each allowed host, so those origins are
+# trusted for form posts unless a different list is given explicitly.
+CSRF_TRUSTED_ORIGINS = env.list(
+    "CSRF_TRUSTED_ORIGINS",
+    default=[f"https://{host}" for host in ALLOWED_HOSTS if host and host[0] not in ".*"],
+)
 
 # Render exposes the public hostname of the service; trusting it here means
 # one less variable to keep in sync by hand.
@@ -54,6 +59,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # First, so container health probes skip the host and HTTPS checks.
+    "config.middleware.HealthCheckMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -116,7 +123,8 @@ CACHES = {
 
 # --- File storage -----------------------------------------------------------
 #
-# Uploads go to S3-compatible object storage (Cloudflare R2 in production).
+# Uploads go to S3-compatible object storage: a MinIO server in production,
+# though Cloudflare R2, Backblaze B2 or AWS S3 work with the same settings.
 # "local" and "memory" exist only for development and the test suite, and
 # are refused unless DEBUG is on, so production can never quietly write
 # uploads to the container's ephemeral disk.
@@ -133,6 +141,8 @@ if STORAGE_BACKEND == "s3":
             "secret_key": env("S3_SECRET_ACCESS_KEY"),
             "region_name": env("S3_REGION", default="auto"),
             "signature_version": "s3v4",
+            # MinIO needs "path" unless it is set up for bucket subdomains.
+            "addressing_style": env("S3_ADDRESSING_STYLE", default=None),
             # The bucket stays private; files are served through short-lived
             # signed URLs generated for users who can already see the ticket.
             "default_acl": None,
@@ -208,11 +218,12 @@ AXES_COOLOFF_TIME = timedelta(minutes=15)
 AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
 AXES_RESET_ON_SUCCESS = True
 AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
-# Behind Render's proxy the client address arrives in X-Forwarded-For.
+# Behind the platform's proxy the client address arrives in X-Forwarded-For.
 # Without this every visitor would share the proxy's IP, and per-IP
 # lockouts would turn into per-username lockouts.
 AXES_CLIENT_IP_CALLABLE = "accounts.client_ip.client_ip"
-# Proxies between the internet and the app that append to X-Forwarded-For.
+# Proxies between the internet and the app that append to X-Forwarded-For:
+# 1 for Coolify's Traefik or Render; 2 if a CDN such as Cloudflare sits in front.
 TRUSTED_PROXY_COUNT = env.int("TRUSTED_PROXY_COUNT", default=1)
 
 # Sign in with GitHub (django-allauth), enabled only when credentials are set.
@@ -250,10 +261,10 @@ CSRF_COOKIE_HTTPONLY = True
 
 # --- HTTPS and security headers ---------------------------------------------
 
-# Render terminates TLS at its proxy and forwards the original scheme.
+# The platform's proxy (Traefik under Coolify, or Render's) terminates TLS
+# and forwards the original scheme.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=not DEBUG)
-SECURE_REDIRECT_EXEMPT = [r"^healthz$"]
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=0 if DEBUG else 60 * 60 * 24 * 30)
@@ -261,8 +272,8 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
-# HSTS preload is a long-term commitment for a domain you own; this app runs
-# on a shared platform subdomain, so it's deliberately left off.
+# HSTS preload is a long-term commitment that binds the whole parent domain,
+# which a single app shouldn't make on its own, so it's deliberately left off.
 SILENCED_SYSTEM_CHECKS = ["security.W021"]
 
 

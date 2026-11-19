@@ -13,8 +13,8 @@ Built for the take-home brief using option 3, the support ticket tracker.
 | Framework and admin | Django 5.2 LTS + the built-in admin | The brief rewards customising a generated admin. Django's has list filters, search, inlines, actions, and per-object permission hooks out of the box, so the work goes into behaviour rather than UI plumbing. LTS until April 2028. |
 | Auth and roles | Django auth + Groups, django-axes, django-allauth | Proper password hashing (Argon2 first), sessions and CSRF come built in. Groups map cleanly to roles, and object-level rules hook into `ModelAdmin.has_change_permission`. Axes adds login lockout; allauth adds optional GitHub sign-in. |
 | Database | PostgreSQL on Neon | Managed Postgres with a usable free tier. Check constraints and functional unique indexes are used, so SQLite was never an option, not even locally. |
-| File storage | Cloudflare R2 via `django-storages` | S3-compatible, free tier with no egress fees. Swapping to AWS S3 is configuration only. |
-| Hosting | Render (free web service) | Git-based deploys, HTTPS by default, a blueprint file in the repo. Cold starts are acceptable per the brief. |
+| File storage | MinIO via `django-storages` | S3-compatible object storage running next to the app on the same Coolify server: a private bucket, signed download links. Cloudflare R2, Backblaze B2 or AWS S3 are a configuration change, no code. |
+| Hosting | Docker image on Coolify (self-hosted VPS) | Git-based deploys with HTTPS from Let's Encrypt, and no sleeping between visits. The `Dockerfile` runs on any Docker host; a Render blueprint is kept as a managed alternative. |
 | Static files | WhiteNoise | Serves hashed, compressed static files from the app itself; no CDN or extra bucket needed at this size. |
 | AI assistant | OpenAI API (any OpenAI-compatible endpoint) | One small client. `OPENAI_BASE_URL` points it at Groq, Gemini or a self-hosted model without code changes. |
 | Tests and CI | pytest + pytest-django, GitHub Actions | Tests run against real Postgres in CI, plus lint, a migration check and Django's deploy checklist. |
@@ -139,10 +139,10 @@ minute and 100 a day (database cache, so the limits hold across workers).
 - Passwords: Argon2 (`PASSWORD_HASHERS`), minimum length 10 plus Django's validators.
 - Brute force: five failed logins for the same username from the same IP
   lock that pair out for 15 minutes (django-axes). The client IP is the
-  entry Render's proxy appends to `X-Forwarded-For`; entries to its left
-  are ignored because the client can forge them.
+  entry the platform's proxy appends to `X-Forwarded-For`; entries to its
+  left are ignored because the client can forge them.
 - Sessions: 8-hour lifetime; session and CSRF cookies are `Secure`, `HttpOnly`, `SameSite=Lax` in production.
-- HTTPS: `SECURE_SSL_REDIRECT`, HSTS (30 days), proxy header from Render; `X-Frame-Options: DENY`, `nosniff`.
+- HTTPS: `SECURE_SSL_REDIRECT`, HSTS (30 days), scheme taken from the proxy's `X-Forwarded-Proto`; `X-Frame-Options: DENY`, `nosniff`.
 - CSRF on all state-changing requests, including the assistant endpoint.
 - Uploads: allowed types only (PDF, PNG, JPG, GIF, TXT, LOG, CSV), 5 MB max,
   and the first bytes must match the extension, so a renamed executable or
@@ -152,7 +152,9 @@ minute and 100 a day (database cache, so the limits hold across workers).
   without `SECRET_KEY`, a PostgreSQL `DATABASE_URL`, or object storage
   credentials in production; the local-disk storage option is rejected
   unless `DEBUG` is on.
-- CI runs `manage.py check --deploy` against production settings.
+- The container runs as an unprivileged user, and secrets are kept out of the image (`.dockerignore`).
+- CI runs `manage.py check --deploy` against production settings, then builds
+  the image and checks it starts, reports healthy and serves pages through the proxy.
 
 ## Running it locally
 
@@ -175,7 +177,7 @@ Open http://localhost:8000/admin/ and sign in as `demo-admin`, `demo-agent`
 or `demo-viewer` to see the three roles.
 
 With `STORAGE_BACKEND=local` (allowed only with `DEBUG=True`) uploads go to
-`./media`; set the `S3_*` variables to use R2 or S3 instead.
+`./media`; set the `S3_*` variables to use MinIO, R2 or S3 instead.
 
 ### Seed data
 
@@ -205,30 +207,53 @@ real allauth views with GitHub's responses faked), the seed command, the
 assistant's context building and every provider failure mode, plus a
 query-count guard on the ticket list.
 
-## Deploying (Neon + R2 + Render)
+## Deploying (Neon + Coolify + MinIO)
 
-1. **Neon**: create a project and copy the connection string (`postgresql://...?sslmode=require`).
-2. **Cloudflare R2**: create a private bucket and an API token with object
-   read/write on it. Note the account's S3 endpoint
-   (`https://<account-id>.r2.cloudflarestorage.com`).
-3. **Render**: New → Blueprint → this repository. `render.yaml` defines the
-   service; fill in the variables it asks for:
+Production runs the `Dockerfile` on a Coolify server, with the database on
+Neon and uploads in MinIO on the same server.
+
+1. **Neon**: create a project and copy the direct connection string
+   (`postgresql://...?sslmode=require`, without `-pooler` in the host).
+2. **MinIO**: add it in Coolify (New resource → Service → MinIO) and give its
+   API a public HTTPS domain, for example `files.example.com`. Signed
+   download links point there, so browsers must be able to reach it. In the
+   MinIO console create a private bucket and an access key limited to it.
+3. **The app**: New resource → Public repository → this repository, build
+   pack **Dockerfile**, port **8000**, and a domain. Set the variables below
+   and deploy.
 
 | Variable | Value |
 |---|---|
+| `SECRET_KEY` | a long random string |
+| `ALLOWED_HOSTS` | the app's domain, e.g. `resolvehub.example.com` (the matching HTTPS origin is trusted for forms automatically) |
 | `DATABASE_URL` | Neon connection string |
-| `S3_BUCKET_NAME`, `S3_ENDPOINT_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | from R2 |
+| `S3_ENDPOINT_URL` | MinIO's public API address, e.g. `https://files.example.com` |
+| `S3_BUCKET_NAME`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | from MinIO |
+| `S3_REGION`, `S3_ADDRESSING_STYLE` | `us-east-1` and `path` for MinIO |
 | `OPENAI_API_KEY` | optional; the assistant explains it's not set up without it |
-| `OPENAI_BASE_URL` | optional, for another OpenAI-compatible provider |
+| `OPENAI_MODEL`, `OPENAI_BASE_URL` | optional; default `gpt-4o-mini` on OpenAI |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | optional, from a GitHub OAuth app with callback `https://<host>/accounts/github/login/callback/` |
+| `TRUSTED_PROXY_COUNT` | `1` (Coolify's proxy); `2` if the domain is also proxied by a CDN |
 
-`SECRET_KEY` is generated by Render and `DEBUG` is `False`. Each deploy runs
-`build.sh`: install, `collectstatic`, `migrate`, `createcachetable`,
-`setup_roles`. To load demo data, run the seed command once from your machine
-with `DATABASE_URL` and the `S3_*` variables pointing at production.
+`DEBUG` defaults to off. Static files are collected while the image is
+built. Each time the container starts it runs `migrate`, `createcachetable`
+and `setup_roles` (`docker-entrypoint.sh`), then gunicorn
+(`gunicorn.conf.py`; `WEB_CONCURRENCY` sets the worker count). To load demo
+data, run the seed command once from your machine with `DATABASE_URL` and
+the `S3_*` variables pointing at production.
 
-`/healthz` checks the database and is used as Render's health check. Logs
-go to stdout, so a 500 shows up with its traceback in the Render log stream.
+`/healthz` checks the database and is the container's Docker health check.
+It is answered before the host and HTTPS checks, because the probe calls
+the container on its internal address; every other path still enforces
+both. Logs go to stdout, so a 500 shows up with its traceback in Coolify's
+log view.
+
+**Render instead of Coolify.** `render.yaml` describes the same service for
+Render (New → Blueprint → this repository). It runs `build.sh` instead of
+the Docker image and trusts Render's hostname automatically. Cloudflare R2
+works as the storage there: use the account's S3 endpoint
+(`https://<account-id>.r2.cloudflarestorage.com`) and leave the region and
+addressing style unset.
 
 ## Deliberately left out
 
@@ -260,6 +285,8 @@ go to stdout, so a 500 shows up with its traceback in the Render log stream.
 
 ```
 config/       settings (environment-driven), URLs, health check
+Dockerfile    production image; docker-entrypoint.sh and gunicorn.conf.py start it
+render.yaml   Render blueprint (alternative host), runs build.sh
 accounts/     roles, setup_roles command, hardened user admin, login lockout IP, GitHub sign-in rules
 tickets/      models, rules, validators, permissions, admin package, seed command
 assistant/    form context builder, model client, endpoint, rate limit, widget

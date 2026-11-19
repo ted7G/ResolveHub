@@ -4,11 +4,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-from . import views
-
 urlpatterns = [
     path("", RedirectView.as_view(pattern_name="admin:index", permanent=False)),
-    path("healthz", views.healthz, name="healthz"),
     # Must come before the admin's catch-all patterns.
     path("admin/assistant/", include("assistant.urls")),
     path("admin/", admin.site.urls),
