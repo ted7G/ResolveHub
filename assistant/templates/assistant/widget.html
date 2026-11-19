@@ -1,0 +1,30 @@
+{% load static %}
+{% if show %}
+<link rel="stylesheet" href="{% static 'assistant/assistant.css' %}">
+<div id="rh-assistant" class="rh-assistant"
+     data-endpoint="{{ endpoint }}" data-model="{{ model }}" data-object-id="{{ object_id }}">
+  <button type="button" class="rh-assistant-toggle" aria-expanded="false" aria-controls="rh-assistant-panel">
+    Help with this form
+  </button>
+  <section id="rh-assistant-panel" class="rh-assistant-panel" aria-label="Form help" hidden>
+    <header class="rh-assistant-header">
+      <strong>Form help</strong>
+      <button type="button" class="rh-assistant-close" aria-label="Close">&times;</button>
+    </header>
+    <p class="rh-assistant-hint">
+      Ask what a field means or how to fill it in. Answers are based on this
+      {{ model_name }} form's own field descriptions and rules. Please don't
+      paste customer personal details.
+    </p>
+    <div class="rh-assistant-log" aria-live="polite"></div>
+    <form class="rh-assistant-form">
+      <label class="rh-assistant-label" for="rh-assistant-question">Your question</label>
+      <p class="rh-assistant-field" hidden></p>
+      <textarea id="rh-assistant-question" rows="3" maxlength="500" required
+                placeholder="e.g. Why can't I set this ticket to Closed?"></textarea>
+      <button type="submit" class="button">Ask</button>
+    </form>
+  </section>
+</div>
+<script src="{% static 'assistant/assistant.js' %}" defer></script>
+{% endif %}

@@ -1,0 +1,131 @@
+/* Uses the admin's own CSS variables so it follows the light/dark theme. */
+
+.rh-assistant {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1000;
+    font-size: 13px;
+}
+
+.rh-assistant-toggle {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 20px;
+    background: var(--button-bg);
+    color: var(--button-fg);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.rh-assistant-toggle:hover,
+.rh-assistant-toggle:focus-visible {
+    background: var(--button-hover-bg);
+}
+
+.rh-assistant-panel {
+    position: absolute;
+    right: 0;
+    bottom: 48px;
+    width: min(380px, calc(100vw - 40px));
+    max-height: min(560px, calc(100vh - 100px));
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--hairline-color);
+    border-radius: 8px;
+    background: var(--body-bg);
+    color: var(--body-fg);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+}
+
+.rh-assistant-panel[hidden] {
+    display: none;
+}
+
+.rh-assistant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--hairline-color);
+    background: var(--darkened-bg);
+}
+
+.rh-assistant-close {
+    border: 0;
+    background: none;
+    color: var(--body-quiet-color);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.rh-assistant-hint {
+    margin: 0;
+    padding: 10px 14px 0;
+    color: var(--body-quiet-color);
+    font-size: 12px;
+}
+
+.rh-assistant-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 14px;
+}
+
+.rh-assistant-msg {
+    margin: 8px 0;
+    padding: 8px 10px;
+    border-radius: 6px;
+    white-space: pre-wrap;
+    line-height: 1.45;
+}
+
+.rh-assistant-question {
+    margin-left: 32px;
+    background: var(--selected-bg);
+}
+
+.rh-assistant-answer {
+    margin-right: 16px;
+    background: var(--darkened-bg);
+}
+
+.rh-assistant-pending {
+    color: var(--body-quiet-color);
+    font-style: italic;
+}
+
+.rh-assistant-error {
+    background: var(--message-error-bg);
+    color: var(--body-fg);
+}
+
+.rh-assistant-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 14px 14px;
+    border-top: 1px solid var(--hairline-color);
+}
+
+.rh-assistant-label {
+    font-weight: 600;
+}
+
+.rh-assistant-field {
+    margin: 0;
+    color: var(--body-quiet-color);
+    font-size: 12px;
+}
+
+.rh-assistant-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.rh-assistant-form .button {
+    align-self: flex-end;
+}
