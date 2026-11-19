@@ -6,6 +6,7 @@ from tickets import rules
 from tickets.models import Agent, Customer, Tag
 
 from .filters import HasActiveTicketsFilter
+from .inlines import CustomerTicketInline
 
 _ACTIVE = Q(tickets__status__in=rules.ACTIVE_STATUSES)
 
@@ -18,6 +19,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_per_page = 50
     show_full_result_count = False
     readonly_fields = ["created_at"]
+    inlines = [CustomerTicketInline]
 
     def get_queryset(self, request):
         return (

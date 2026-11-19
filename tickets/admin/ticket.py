@@ -4,10 +4,12 @@ from django.contrib import admin
 from django.db.models import Count
 
 from tickets.models import Ticket
+from tickets.rules import Status
 
 from . import display
 from .filters import AssignmentFilter, DeadlineFilter
 from .forms import TicketAdminForm
+from .inlines import AddCommentInline, CommentHistoryInline
 
 # Matches "RH-00042", "rh-42" or just "42" in the search box.
 _REFERENCE_RE = re.compile(r"(?:rh-)?0*(\d{1,9})", re.IGNORECASE)
@@ -70,11 +72,19 @@ class TicketAdmin(admin.ModelAdmin):
         ),
     ]
 
+    inlines = [CommentHistoryInline, AddCommentInline]
+
     class Media:
         css = {"all": ["tickets/admin.css"]}
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(comment_count=Count("comments"))
+
+    def has_change_permission(self, request, obj=None):
+        # Closed is final, so a closed ticket is read-only for everyone.
+        if obj is not None and obj.status == Status.CLOSED:
+            return False
+        return super().has_change_permission(request, obj)
 
     def get_search_results(self, request, queryset, search_term):
         queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)

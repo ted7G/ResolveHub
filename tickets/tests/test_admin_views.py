@@ -10,13 +10,6 @@ pytestmark = pytest.mark.django_db
 
 
 @pytest.fixture
-def superuser_client(client, django_user_model):
-    user = django_user_model.objects.create_superuser("root", "root@example.com", "pw-not-used-1")
-    client.force_login(user)
-    return client
-
-
-@pytest.fixture
 def ticket(make_ticket, make_agent, make_user):
     ticket = make_ticket(assignee=make_agent(), status=Status.OPEN)
     ticket.tags.add(Tag.objects.create(name="login"))
