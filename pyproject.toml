@@ -7,8 +7,10 @@ requires-python = ">=3.12"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.test_settings"
 python_files = ["test_*.py"]
-testpaths = ["tests", "tickets"]
+testpaths = ["tests", "accounts", "tickets"]
 addopts = "--strict-markers"
+# Catch code that will break on the next Django upgrade.
+filterwarnings = ["error::django.utils.deprecation.RemovedInDjango60Warning"]
 
 [tool.ruff]
 line-length = 100
@@ -21,4 +23,4 @@ select = ["E", "F", "W", "I", "B", "UP", "DJ", "SIM"]
 ignore = ["E501"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["config", "tickets", "assistant"]
+known-first-party = ["config", "accounts", "tickets", "assistant"]
