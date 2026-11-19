@@ -1,6 +1,10 @@
 from django.conf import settings
 from django.db import models
 from django.db.models.functions import Lower
+from django.utils import timezone
+
+from . import rules
+from .rules import Priority, Status
 
 
 class Customer(models.Model):
@@ -81,3 +85,133 @@ class Tag(models.Model):
 
     def clean(self):
         self.name = self.name.strip().lower()
+
+
+class TicketQuerySet(models.QuerySet):
+    def active(self):
+        return self.filter(status__in=rules.ACTIVE_STATUSES)
+
+    def overdue(self, now=None):
+        return self.active().filter(due_at__lt=now or timezone.now())
+
+
+class Ticket(models.Model):
+    subject = models.CharField(
+        max_length=200, help_text="One-line summary of the problem, as the customer would put it."
+    )
+    description = models.TextField(
+        help_text="Full description of the issue: what happened, what was expected, any error messages."
+    )
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.PROTECT,
+        related_name="tickets",
+        help_text="Customer who reported the issue. Customers with tickets can't be deleted.",
+    )
+    assignee = models.ForeignKey(
+        Agent,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tickets",
+        help_text="Agent responsible for the ticket. Required before it can be opened.",
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=Status.choices,
+        default=Status.NEW,
+        help_text=(
+            "Where the ticket is in the workflow. Only valid next steps are offered; "
+            "closed tickets can't be reopened."
+        ),
+    )
+    priority = models.CharField(
+        max_length=20,
+        choices=Priority.choices,
+        default=Priority.NORMAL,
+        help_text=f"Sets the response deadline from creation time: {rules.describe_sla()}.",
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        blank=True,
+        related_name="tickets",
+        help_text="Labels used to group similar tickets. Pick any that apply.",
+    )
+    # Not auto_now_add so the seed command can create historical tickets.
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+    due_at = models.DateTimeField(
+        editable=False, help_text="Response deadline, calculated from priority."
+    )
+    resolved_at = models.DateTimeField(null=True, blank=True, editable=False)
+    closed_at = models.DateTimeField(null=True, blank=True, editable=False)
+
+    objects = TicketQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["status", "due_at"], name="ticket_status_due_idx"),
+            models.Index(fields=["assignee", "status"], name="ticket_assignee_status_idx"),
+            models.Index(fields=["-created_at"], name="ticket_created_idx"),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(status__in=Status.values), name="ticket_status_valid"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(priority__in=Priority.values), name="ticket_priority_valid"
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(status=Status.RESOLVED) | models.Q(resolved_at__isnull=False),
+                name="ticket_resolved_has_timestamp",
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(status=Status.CLOSED) | models.Q(closed_at__isnull=False),
+                name="ticket_closed_has_timestamp",
+            ),
+        ]
+        permissions = [
+            ("manage_all_tickets", "Can edit tickets assigned to other agents"),
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remember what was loaded from the database so changes can be
+        # checked against the workflow. Read from __dict__ to avoid triggering
+        # a query when the field was deferred.
+        self._loaded_status = self.__dict__.get("status") if self.pk else None
+        self._loaded_priority = self.__dict__.get("priority") if self.pk else None
+
+    def __str__(self):
+        return f"{self.reference} {self.subject}"
+
+    def save(self, *args, **kwargs):
+        if self.due_at is None or self.priority != self._loaded_priority:
+            self.due_at = rules.due_at_for(self.created_at, self.priority)
+        self._sync_status_timestamps()
+        super().save(*args, **kwargs)
+        self._loaded_status = self.status
+        self._loaded_priority = self.priority
+
+    @property
+    def reference(self):
+        return f"RH-{self.pk:05d}" if self.pk else "RH-new"
+
+    @property
+    def is_overdue(self):
+        return (
+            self.status in rules.ACTIVE_STATUSES
+            and self.due_at is not None
+            and self.due_at < timezone.now()
+        )
+
+    def _sync_status_timestamps(self):
+        now = timezone.now()
+        if self.status == Status.RESOLVED:
+            self.resolved_at = self.resolved_at or now
+        elif self.status in rules.ACTIVE_STATUSES:
+            # Reopened: the previous resolution no longer counts.
+            self.resolved_at = None
+        if self.status == Status.CLOSED:
+            self.closed_at = self.closed_at or now
