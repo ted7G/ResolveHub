@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "accounts",
     "tickets",
+    "assistant",
 ]
 
 MIDDLEWARE = [
@@ -88,6 +89,19 @@ DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# --- Cache ------------------------------------------------------------------
+#
+# Shared between worker processes because the assistant's rate limits live
+# here. Requires `manage.py createcachetable` (run by the build script).
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
+    }
+}
 
 
 # --- File storage -----------------------------------------------------------
@@ -217,3 +231,17 @@ LOGGING = {
         "django.request": {"handlers": ["console"], "level": "WARNING", "propagate": False},
     },
 }
+
+
+# --- Form assistant ---------------------------------------------------------
+#
+# Optional. Without an API key the admin works normally and the help widget
+# explains that the assistant isn't set up. OPENAI_BASE_URL points the client
+# at any OpenAI-compatible provider (e.g. Groq or Gemini) instead.
+
+OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
+OPENAI_BASE_URL = env("OPENAI_BASE_URL", default="")
+OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-4.1-mini")
+ASSISTANT_TIMEOUT_SECONDS = env.float("ASSISTANT_TIMEOUT_SECONDS", default=20.0)
+ASSISTANT_REQUESTS_PER_MINUTE = env.int("ASSISTANT_REQUESTS_PER_MINUTE", default=6)
+ASSISTANT_REQUESTS_PER_DAY = env.int("ASSISTANT_REQUESTS_PER_DAY", default=100)

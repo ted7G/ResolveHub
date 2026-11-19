@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.test_settings"
 python_files = ["test_*.py"]
-testpaths = ["tests", "accounts", "tickets"]
+testpaths = ["tests", "accounts", "tickets", "assistant"]
 addopts = "--strict-markers"
 # Catch code that will break on the next Django upgrade.
 filterwarnings = ["error::django.utils.deprecation.RemovedInDjango60Warning"]

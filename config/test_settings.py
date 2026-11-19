@@ -26,3 +26,6 @@ STORAGES["staticfiles"] = {  # noqa: F405
 # Nothing is collected in tests; without this WhiteNoise warns about the
 # missing STATIC_ROOT directory on every request.
 STATIC_ROOT = None
+
+# Tests never call a real model provider; the ones that need a key set it.
+OPENAI_API_KEY = ""
