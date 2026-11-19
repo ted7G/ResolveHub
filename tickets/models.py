@@ -27,7 +27,9 @@ class Customer(models.Model):
         blank=True,
         help_text="Optional. Include the country code, e.g. +44 20 7946 0000.",
     )
-    created_at = models.DateTimeField(auto_now_add=True)
+    # A default rather than auto_now_add so imported or seeded customers can
+    # keep their original sign-up date.
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta:
         ordering = ["name"]
