@@ -39,9 +39,9 @@ DEMO_EMAIL_DOMAIN = "staff.resolvehub.test"
 
 DEMO_ACCOUNTS = [
     # username, first name, last name, role, agent team (None: not an agent)
-    ("demo-admin", "Alex", "Morgan", SUPPORT_ADMIN, Agent.Team.GENERAL),
-    ("demo-agent", "Sam", "Patel", AGENT, Agent.Team.TECHNICAL),
-    ("demo-viewer", "Jordan", "Lee", VIEWER, None),
+    ("admin", "Alex", "Morgan", SUPPORT_ADMIN, Agent.Team.GENERAL),
+    ("agent", "Sam", "Patel", AGENT, Agent.Team.TECHNICAL),
+    ("viewer", "Jordan", "Lee", VIEWER, None),
 ]
 
 AGENT_TEAMS = (
@@ -227,7 +227,7 @@ class Command(BaseCommand):
         by_team = {}
         for agent in agents:
             by_team.setdefault(agent.team, []).append(agent)
-        demo_agent = next(a for a in agents if a.user.username == "demo-agent")
+        demo_agent = next(a for a in agents if a.user.username == "agent")
         # A few customers raise most tickets, like in real life.
         customer_weights = [1 / (rank + 1) ** 0.35 for rank in range(len(customers))]
         category_weights = [c["weight"] for c in content.CATEGORIES]

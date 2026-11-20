@@ -33,9 +33,9 @@ def test_demo_accounts_can_log_in_with_their_roles():
     seed()
 
     for username, role in [
-        ("demo-admin", SUPPORT_ADMIN),
-        ("demo-agent", AGENT),
-        ("demo-viewer", VIEWER),
+        ("admin", SUPPORT_ADMIN),
+        ("agent", AGENT),
+        ("viewer", VIEWER),
     ]:
         user = authenticate(username=username, password=SMALL["password"])
         assert user is not None and user.is_staff
@@ -45,7 +45,7 @@ def test_demo_accounts_can_log_in_with_their_roles():
 def test_seeded_colleagues_cannot_log_in():
     seed()
 
-    colleague = Agent.objects.exclude(user__username__startswith="demo-").first().user
+    colleague = Agent.objects.exclude(user__username__in=["admin", "agent"]).first().user
 
     assert not colleague.has_usable_password()
 
@@ -81,7 +81,7 @@ def test_reset_replaces_demo_data_but_keeps_real_accounts(django_user_model):
 
     assert Ticket.objects.count() == 50
     assert get_user_model().objects.filter(pk=real.pk).exists()
-    assert get_user_model().objects.filter(username="demo-admin").count() == 1
+    assert get_user_model().objects.filter(username="admin").count() == 1
 
 
 def test_same_seed_gives_the_same_data():
