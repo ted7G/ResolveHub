@@ -43,7 +43,10 @@ def _apply(modeladmin, request, queryset, change, *, done_message, log_message):
 
     for ticket in queryset.select_related("assignee__user", "customer"):
         if not modeladmin.has_change_permission(request, ticket):
-            skipped["you don't have permission to edit them"] += 1
+            if ticket.status == Status.CLOSED:
+                skipped["closed tickets can't be changed"] += 1
+            else:
+                skipped["you don't have permission to edit them"] += 1
             continue
         try:
             with transaction.atomic():

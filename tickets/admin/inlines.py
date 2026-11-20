@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.utils.html import format_html
 
 from tickets.models import Agent, Comment, Ticket
+from tickets.permissions import can_edit_ticket
 from tickets.rules import Status
 
 from . import display
@@ -36,6 +37,10 @@ class CommentHistoryInline(admin.StackedInline):
         return False
 
     def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        # Deleting a message rewrites the conversation just as editing would.
         return False
 
     @admin.display(description="From")
@@ -138,8 +143,20 @@ class CustomerTicketInline(admin.TabularInline):
 
     def get_formset(self, request, obj=None, **kwargs):
         formset_class = super().get_formset(request, obj, **kwargs)
+        user = request.user
 
         class SharedAgentsFormSet(formset_class):
+            # The page-level check says the user may edit tickets; each row
+            # still follows the per-ticket rule, so a closed ticket stays
+            # locked here too. Disabled fields ignore submitted values.
+            def _construct_form(self, i, **kwargs):
+                form = super()._construct_form(i, **kwargs)
+                if form.instance.pk and not can_edit_ticket(user, form.instance):
+                    for name in form._meta.fields:
+                        if name in form.fields:
+                            form.fields[name].disabled = True
+                return form
+
             # Every row offers the same agents; load them once for the page
             # instead of once per ticket.
             def get_form_kwargs(self, index):

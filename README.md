@@ -94,12 +94,14 @@ the same definitions.
 | | Support admin | Agent | Viewer |
 |---|---|---|---|
 | See tickets, customers, agents, tags | yes | yes | yes |
-| Edit tickets | any | own and unassigned | no |
+| Edit tickets (closed ones are read-only for everyone) | any | own and unassigned | no |
+| Assign a ticket to someone | anyone | only themselves | no |
 | Bulk status actions / assign to me | yes | own and unassigned only | no |
 | Assign to another agent in bulk | yes | no | no |
 | Add / edit customers, add tags | yes | yes | no |
-| Delete anything | yes | no | no |
-| See internal notes | yes | yes | no |
+| Delete tickets, customers, tags | yes | no | no |
+| Edit or delete a sent message | no | no | no |
+| See internal notes (and count them) | yes | yes | no |
 | Manage staff accounts and roles | yes | no | no |
 
 A lower role sees a visibly smaller admin rather than error pages: no Users

@@ -13,6 +13,9 @@ class TicketAdminForm(forms.ModelForm):
     model still validates everything; this is about not wasting a click.
     """
 
+    # Set by TicketAdmin for people who may only assign tickets to themselves.
+    assignee_limit = None
+
     class Meta:
         model = Ticket
         fields = ["subject", "description", "customer", "status", "priority", "assignee", "tags"]
@@ -39,6 +42,8 @@ class TicketAdminForm(forms.ModelForm):
             field.queryset = Agent.objects.select_related("user").filter(
                 Q(is_available=True) | Q(pk=ticket._loaded_assignee_id)
             )
+            if self.assignee_limit is not None:
+                field.queryset = field.queryset.filter(pk__in=self.assignee_limit.values("pk"))
             if agents is not None:
                 offered = [
                     agent

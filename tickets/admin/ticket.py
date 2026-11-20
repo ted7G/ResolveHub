@@ -1,9 +1,9 @@
 import re
 
 from django.contrib import admin
-from django.db.models import Count
+from django.db.models import Count, Q
 
-from tickets.models import Ticket
+from tickets.models import Agent, Ticket
 from tickets.permissions import can_edit_ticket, readonly_reason
 
 from . import actions, display
@@ -94,8 +94,26 @@ class TicketAdmin(admin.ModelAdmin):
             super()
             .get_queryset(request)
             .select_related("customer", "assignee__user")
-            .annotate(comment_count=Count("comments"))
+            .annotate(comment_count=self._comment_count(request))
         )
+
+    def _comment_count(self, request):
+        # Without access to internal notes the count shouldn't reveal them.
+        if request.user.has_perm("tickets.view_internal_note"):
+            return Count("comments")
+        return Count("comments", filter=Q(comments__is_internal=False))
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        if self.has_manage_all_permission(request):
+            return form
+
+        class OwnTicketsForm(form):
+            # Agents pick tickets up for themselves; handing one to a
+            # colleague is a support admin's call, as with the bulk action.
+            assignee_limit = Agent.objects.filter(user=request.user)
+
+        return OwnTicketsForm
 
     def has_manage_all_permission(self, request):
         return request.user.has_perm("tickets.manage_all_tickets")
@@ -111,11 +129,16 @@ class TicketAdmin(admin.ModelAdmin):
         return super().render_change_form(request, context, add, change, form_url, obj)
 
     def get_search_results(self, request, queryset, search_term):
-        queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
-        match = _REFERENCE_RE.fullmatch(search_term.strip())
-        if match:
-            queryset |= self.get_queryset(request).filter(pk=int(match.group(1)))
-        return queryset, may_have_duplicates
+        matches, may_have_duplicates = super().get_search_results(request, queryset, search_term)
+        reference = _REFERENCE_RE.fullmatch(search_term.strip())
+        if reference:
+            # Narrow the incoming queryset rather than OR-ing in a fresh one,
+            # so the sidebar filters still apply and joins added by them
+            # can't multiply the comment counts.
+            matches = queryset.filter(
+                Q(pk__in=matches.values("pk")) | Q(pk=int(reference.group(1)))
+            )
+        return matches, may_have_duplicates
 
     @admin.display(description="Ticket", ordering="pk")
     def reference(self, obj):

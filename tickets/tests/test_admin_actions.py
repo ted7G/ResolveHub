@@ -32,7 +32,7 @@ def test_bulk_resolve_moves_valid_tickets_and_reports_the_rest(
     assert Ticket.objects.filter(status=Status.RESOLVED).count() == 3
     assert "3 tickets moved to Resolved." in messages
     assert any("1 ticket skipped: Assign an agent" in m for m in messages)
-    assert any("1 ticket skipped: you don't have permission" in m for m in messages)
+    assert any("1 ticket skipped: closed tickets can't be changed" in m for m in messages)
     assert LogEntry.objects.filter(change_message__contains="bulk action").count() == 3
 
 
