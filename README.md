@@ -11,7 +11,7 @@ Built for the take-home brief using option 3, the support ticket tracker.
 | Login | Role | What to try |
 |---|---|---|
 | `admin` | Support admin | Reassign tickets, manage agents and tags, the Users page |
-| `agent` | Agent | Work your own tickets; colleagues' tickets open read-only |
+| `agent` | Agent | Work your own tickets and pick up unassigned ones; colleagues' tickets open read-only |
 | `viewer` | Viewer | Everything is read-only; internal notes are hidden |
 
 Password for all three: `12345678`. It's kept simple on purpose for the
@@ -76,12 +76,14 @@ the same definitions.
   "Due in 5 hours" column, comment count, filters for deadline, assignment
   ("Assigned to me"), team, agent, tags and date. Search covers subject,
   customer name, email and company, and also ticket numbers like `RH-00042`.
-- Ticket page: the conversation is shown read-only (what was said to a
-  customer shouldn't be rewritten), with a separate inline for adding a
-  reply, internal note or attachment. The author is set from the login.
+- Ticket page: the conversation is shown read-only and messages can't be
+  deleted (what was said to a customer shouldn't be rewritten), with a
+  separate inline for adding a reply, internal note or attachment. The author is set from the login.
   The status dropdown only offers moves that are valid from the current status.
 - Customer page: inline list of that customer's tickets with editable
-  status, priority and assignee, still validated by the workflow.
+  status, priority and assignee for support admins, still validated by the
+  workflow. Rows follow the same per-ticket rule as the ticket page, so
+  closed tickets stay locked here too.
 - Bulk actions: move to Open / Waiting / Resolved / Closed, assign to me,
   assign to a chosen agent (agent picker next to the action menu). Each
   ticket goes through the same model rules; skipped tickets are reported
@@ -107,7 +109,10 @@ the same definitions.
 A lower role sees a visibly smaller admin rather than error pages: no Users
 section, no add buttons or bulk actions for viewers, and a colleague's ticket
 opens read-only with a note explaining who can edit it. The same check
-refuses direct POSTs and is applied per ticket in bulk actions. Support
+refuses direct POSTs and is applied per ticket in bulk actions and on the
+customer page. It's judged on the saved ticket, so a submit that fails
+validation comes back editable for the user to fix. Agents' assignee
+dropdown only offers themselves, and the server rejects anyone else. Support
 admins can manage staff, but can't grant superuser status or raw
 permissions, or edit a superuser's account.
 
@@ -146,7 +151,9 @@ data, not instructions.
 
 Failure handling: no API key, timeouts (20s), provider rate limits, bad
 keys and empty answers each return a short message the widget shows in
-place of an answer. The admin page itself never depends on the call.
+place of an answer. The admin page itself never depends on the call, and
+gunicorn runs threaded workers, so a slow provider ties up one thread
+rather than the site.
 Requests need a staff login and a CSRF token, questions are capped at 500
 characters, the body at 4 KB, and each user is limited to 6 questions a
 minute and 100 a day (database cache, so the limits hold across workers).
@@ -165,6 +172,8 @@ minute and 100 a day (database cache, so the limits hold across workers).
   and the first bytes must match the extension, so a renamed executable or
   an HTML page is rejected. Stored under random keys in a private bucket and
   served through 10-minute signed URLs. Nothing is executed or rendered as HTML.
+  Deleting a message or ticket removes its file from storage once the
+  delete has committed.
 - Secrets only come from environment variables. Settings refuse to start
   without `SECRET_KEY`, a PostgreSQL `DATABASE_URL`, or object storage
   credentials in production; the local-disk storage option is rejected
@@ -208,8 +217,10 @@ Defaults: 400 customers, 3,000 tickets over 180 days, about 12,000
 messages, 30 attachments, 17 staff (3 demo logins plus 14 colleagues who
 can't log in). The status mix depends on ticket age and all timestamps
 follow the workflow, so filters such as "Overdue" return realistic results.
-`--reset` deletes help desk data and seeded staff only; real accounts are kept.
-`--seed N` makes runs repeatable.
+`--reset` deletes the help desk data and the seeded staff only: real
+accounts keep their logins and agent profiles. If a real account already
+uses one of the demo login names, the command stops before changing
+anything. `--seed N` makes runs repeatable.
 
 ### Tests
 
@@ -217,12 +228,14 @@ follow the workflow, so filters such as "Overdue" return realistic results.
 pytest
 ```
 
-About 150 tests cover the workflow and SLA rules, attachment validation,
+About 170 tests cover the workflow and SLA rules, attachment validation,
 each role's view of the admin (through real requests, including forged
-POSTs), bulk actions, login lockout, the GitHub sign-in flow (through the
-real allauth views with GitHub's responses faked), the seed command, the
-assistant's context building and every provider failure mode, plus a
-query-count guard on the ticket list.
+POSTs and the edge cases: closed tickets on the customer page, failed
+submits, search combined with filters), bulk actions, login lockout, the
+GitHub sign-in flow (through the real allauth views with GitHub's responses
+faked), the seed command, the assistant's context building and every
+provider failure mode, plus query-count guards on the ticket list and the
+customer page.
 
 ## Deploying (Neon + Coolify + Garage)
 
@@ -260,7 +273,11 @@ Neon and uploads in Garage on the same server.
 `DEBUG` defaults to off. Static files are collected while the image is
 built. Each time the container starts it runs `migrate`, `createcachetable`
 and `setup_roles` (`docker-entrypoint.sh`), then gunicorn
-(`gunicorn.conf.py`; `WEB_CONCURRENCY` sets the worker count). To load demo
+(`gunicorn.conf.py`; `WEB_CONCURRENCY` workers with `WEB_THREADS` threads
+each, 2 and 4 by default). Database calls give up after 10 seconds trying to
+connect and 30 seconds per query (`DB_CONNECT_TIMEOUT`,
+`DB_STATEMENT_TIMEOUT_MS`), so a database problem returns an error rather
+than tying up threads. To load demo
 data, run the seed command once from your machine with `DATABASE_URL` and
 the `S3_*` variables pointing at production.
 
