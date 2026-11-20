@@ -9,7 +9,9 @@ workers = int(os.environ.get("WEB_CONCURRENCY", "2"))
 # database connection.
 worker_class = "gthread"
 threads = int(os.environ.get("WEB_THREADS", "4"))
-# The AI assistant waits up to ASSISTANT_TIMEOUT_SECONDS for a reply.
+# With threaded workers this only restarts a worker that stops responding
+# altogether; it doesn't cut off a slow request. Slow calls are bounded where
+# they happen: the assistant's client timeout and the database timeouts.
 timeout = 60
 graceful_timeout = 20
 accesslog = "-"

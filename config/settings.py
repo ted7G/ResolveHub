@@ -104,6 +104,13 @@ if DATABASES["default"]["ENGINE"] != "django.db.backends.postgresql":
 # connection the provider dropped while idle doesn't surface as a 500.
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
+# Bound how long a request can wait on the database, so an unreachable
+# server or a runaway query fails with an error instead of holding a thread.
+_db_options = DATABASES["default"].setdefault("OPTIONS", {})
+_db_options.setdefault("connect_timeout", env.int("DB_CONNECT_TIMEOUT", default=10))
+_db_options.setdefault(
+    "options", f"-c statement_timeout={env.int('DB_STATEMENT_TIMEOUT_MS', default=30000)}"
+)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

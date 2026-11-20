@@ -64,3 +64,9 @@ def test_root_redirects_to_admin(client):
 
     assert response.status_code == 302
     assert response["Location"] == "/admin/"
+
+
+def test_database_queries_have_a_time_limit():
+    with connection.cursor() as cursor:
+        cursor.execute("SHOW statement_timeout")
+        assert cursor.fetchone()[0] == "30s"
