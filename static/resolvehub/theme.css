@@ -2078,6 +2078,7 @@ body.login br.clear {
 }
 
 body.login #content-main {
+    float: none;
     width: 100%;
 }
 
