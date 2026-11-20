@@ -277,6 +277,20 @@ works as the storage there: use the account's S3 endpoint
 (`https://<account-id>.r2.cloudflarestorage.com`) and leave the region and
 addressing style unset.
 
+## Trade-offs I made
+
+- **Self-hosted object storage instead of a managed one.** The free tiers of
+  Cloudflare R2 and Render both require a card, so the app and its Garage
+  storage run on one Coolify server. Uploads still never touch the app's
+  disk and the bucket is private, but the files share a machine with the
+  app and their backups are mine to run. Moving to R2 or S3 is a change of
+  five environment variables, no code.
+- **Database and app in different regions.** Neon runs in US West and the
+  server sits elsewhere, so every query pays the distance: list pages make
+  about a dozen queries and take a second or two. The fix is a Neon project
+  in the server's region; inside the code, pages keep a fixed query count
+  (tests check it) so the distance isn't multiplied by the number of rows.
+
 ## Deliberately left out
 
 - **A customer-facing portal or public API.** The brief centres on the
