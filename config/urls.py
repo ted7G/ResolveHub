@@ -13,7 +13,14 @@ urlpatterns = [
 
 # GitHub sign-in routes exist only when the integration is configured.
 if settings.GITHUB_LOGIN_ENABLED:
-    urlpatterns.append(path("accounts/", include("allauth.urls")))
+    urlpatterns += [
+        # One login page: allauth's own would duplicate the admin's.
+        path(
+            "accounts/login/",
+            RedirectView.as_view(pattern_name="admin:login", query_string=True),
+        ),
+        path("accounts/", include("allauth.urls")),
+    ]
 
 if settings.DEBUG and settings.STORAGE_BACKEND == "local":
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

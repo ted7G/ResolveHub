@@ -118,3 +118,30 @@ def test_linking_page_uses_the_admin_layout(client, make_user):
 
     assert "ResolveHub" in page
     assert "Back to the admin" in page
+
+
+def test_unlinked_github_account_is_told_how_to_link_it(client):
+    page = github_round_trip(client).content.decode()
+
+    assert "isn't linked to a login yet" in page
+    assert reverse("admin:login") in page
+    assert "Sign Up Closed" not in page
+
+
+def test_cancelling_at_github_explains_and_links_back(client):
+    start = client.post(reverse("github_login"), {"process": "login"})
+    state = parse_qs(urlparse(start["Location"]).query)["state"][0]
+
+    page = client.get(
+        reverse("github_callback"), {"error": "access_denied", "state": state}, follow=True
+    ).content.decode()
+
+    assert "GitHub sign-in cancelled" in page
+    assert reverse("admin:login") in page
+
+
+def test_there_is_only_one_login_page(client):
+    response = client.get("/accounts/login/?next=/admin/")
+
+    assert response.status_code == 302
+    assert response["Location"] == reverse("admin:login") + "?next=/admin/"
