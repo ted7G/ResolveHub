@@ -133,6 +133,11 @@ is a second way into an existing staff account, never a way to get one:
 
 Roles stay on the Django user, so OAuth can't grant or change access.
 
+It's switched off on the live demo, which would need an OAuth app
+registered to that address; the whole flow is covered by tests in
+`accounts/tests/test_github_login.py`, which go through the real allauth
+views with only GitHub's two network calls faked.
+
 **AI form assistant** (`assistant/`)
 
 A "Help with this form" panel on every add/change page. The prompt is built
