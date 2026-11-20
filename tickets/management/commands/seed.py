@@ -108,6 +108,7 @@ class Command(BaseCommand):
         if generated_password:
             password = secrets.token_urlsafe(12)
 
+        self._check_demo_usernames_are_free()
         if options["reset"]:
             self._reset()
         elif Ticket.objects.exists():
@@ -141,19 +142,31 @@ class Command(BaseCommand):
     # --- Reset ---------------------------------------------------------------
 
     def _reset(self):
-        stored = Comment.objects.exclude(attachment="").values_list("attachment", flat=True)
-        for name in stored.iterator():
-            default_storage.delete(name)
+        # Stored attachments are removed by the Comment delete signal.
         with transaction.atomic():
             Comment.objects.all().delete()
             Ticket.objects.all().delete()
             Customer.objects.all().delete()
             Tag.objects.all().delete()
-            Agent.objects.all().delete()
+            # Real staff keep their logins and their agent profiles.
             User.objects.filter(email__endswith=f"@{DEMO_EMAIL_DOMAIN}").delete()
         self.stdout.write("Removed existing help desk data.")
 
     # --- Staff ---------------------------------------------------------------
+
+    def _check_demo_usernames_are_free(self):
+        """Fail before touching any data if a real account uses a demo name."""
+        names = [username for username, *_ in DEMO_ACCOUNTS]
+        taken = (
+            User.objects.filter(username__in=names)
+            .exclude(email__endswith=f"@{DEMO_EMAIL_DOMAIN}")
+            .values_list("username", flat=True)
+        )
+        if taken:
+            raise CommandError(
+                f"Real accounts already use the demo login names {', '.join(sorted(taken))}. "
+                "Rename them first; the seed command never changes real accounts."
+            )
 
     def _create_demo_accounts(self, password):
         users = {}

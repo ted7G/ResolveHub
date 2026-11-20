@@ -92,3 +92,22 @@ def test_same_seed_gives_the_same_data():
     second = list(Ticket.objects.order_by("pk").values_list("subject", "status", "priority"))
 
     assert first == second
+
+
+def test_reset_keeps_real_staff_agent_profiles(make_agent):
+    real = make_agent()
+    seed()
+
+    seed(reset=True, tickets=50)
+
+    assert Agent.objects.filter(pk=real.pk).exists()
+
+
+def test_refuses_before_touching_data_if_a_real_account_uses_a_demo_name(django_user_model):
+    seed()
+    django_user_model.objects.filter(username="viewer").update(email="viewer@company.example")
+
+    with pytest.raises(CommandError, match="viewer"):
+        seed(reset=True)
+
+    assert Ticket.objects.count() == SMALL["tickets"]

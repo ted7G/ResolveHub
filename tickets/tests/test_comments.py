@@ -1,5 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import IntegrityError
 
@@ -104,3 +106,18 @@ def test_customer_messages_cannot_be_internal(make_ticket):
 
     with pytest.raises(IntegrityError):
         comment.save()
+
+
+@pytest.mark.django_db
+def test_deleting_a_ticket_removes_its_stored_attachments(
+    make_ticket, django_capture_on_commit_callbacks
+):
+    comment = Comment(ticket=make_ticket(), body="Log attached")
+    comment.attachment.save("app.log", ContentFile(b"started\n"))
+    stored = comment.attachment.name
+    assert default_storage.exists(stored)
+
+    with django_capture_on_commit_callbacks(execute=True):
+        comment.ticket.delete()
+
+    assert not default_storage.exists(stored)
