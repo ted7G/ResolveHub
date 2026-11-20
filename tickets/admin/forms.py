@@ -17,7 +17,9 @@ class TicketAdminForm(forms.ModelForm):
         model = Ticket
         fields = ["subject", "description", "customer", "status", "priority", "assignee", "tags"]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, agents=None, **kwargs):
+        # `agents`: agents already loaded by an inline formset, so each row
+        # doesn't query for the same dropdown again.
         super().__init__(*args, **kwargs)
         ticket = self.instance
 
@@ -33,6 +35,15 @@ class TicketAdminForm(forms.ModelForm):
             ]
 
         if "assignee" in self.fields:
-            self.fields["assignee"].queryset = Agent.objects.select_related("user").filter(
+            field = self.fields["assignee"]
+            field.queryset = Agent.objects.select_related("user").filter(
                 Q(is_available=True) | Q(pk=ticket._loaded_assignee_id)
             )
+            if agents is not None:
+                offered = [
+                    agent
+                    for agent in agents
+                    if agent.is_available or agent.pk == ticket._loaded_assignee_id
+                ]
+                empty = [("", field.empty_label)] if field.empty_label is not None else []
+                field.choices = empty + [(agent.pk, str(agent)) for agent in offered]

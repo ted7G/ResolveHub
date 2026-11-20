@@ -1,7 +1,8 @@
 from django.contrib import admin
+from django.db.models import Q
 from django.utils.html import format_html
 
-from tickets.models import Comment, Ticket
+from tickets.models import Agent, Comment, Ticket
 from tickets.rules import Status
 
 from . import display
@@ -134,6 +135,26 @@ class CustomerTicketInline(admin.TabularInline):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("assignee__user")
+
+    def get_formset(self, request, obj=None, **kwargs):
+        formset_class = super().get_formset(request, obj, **kwargs)
+
+        class SharedAgentsFormSet(formset_class):
+            # Every row offers the same agents; load them once for the page
+            # instead of once per ticket.
+            def get_form_kwargs(self, index):
+                kwargs = super().get_form_kwargs(index)
+                if not hasattr(self, "_agents"):
+                    assigned = {t.assignee_id for t in self.get_queryset() if t.assignee_id}
+                    self._agents = list(
+                        Agent.objects.select_related("user").filter(
+                            Q(is_available=True) | Q(pk__in=assigned)
+                        )
+                    )
+                kwargs["agents"] = self._agents
+                return kwargs
+
+        return SharedAgentsFormSet
 
     def has_add_permission(self, request, obj=None):
         return False

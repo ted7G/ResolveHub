@@ -99,3 +99,20 @@ def test_ticket_changelist_query_count_does_not_grow_with_rows(
 
     with django_assert_max_num_queries(15):
         superuser_client.get(reverse("admin:tickets_ticket_changelist"))
+
+
+def test_customer_page_query_count_does_not_grow_with_tickets(
+    superuser_client, customer, make_ticket, make_agent, django_assert_max_num_queries
+):
+    agents = [make_agent() for _ in range(3)]
+    for index in range(25):
+        make_ticket(customer=customer, assignee=agents[index % 3])
+    url = reverse("admin:tickets_customer_change", args=[customer.pk])
+
+    with django_assert_max_num_queries(10):
+        response = superuser_client.get(url)
+
+    rows = response.context["inline_admin_formsets"][0].formset.forms
+    assert len(rows) == 25
+    offered = [value for value, _ in rows[0].fields["assignee"].choices if value]
+    assert len(offered) == 3
