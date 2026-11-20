@@ -33,13 +33,6 @@ CSRF_TRUSTED_ORIGINS = env.list(
     default=[f"https://{host}" for host in ALLOWED_HOSTS if host and host[0] not in ".*"],
 )
 
-# Render exposes the public hostname of the service; trusting it here means
-# one less variable to keep in sync by hand.
-RENDER_EXTERNAL_HOSTNAME = env("RENDER_EXTERNAL_HOSTNAME", default="")
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -231,7 +224,7 @@ AXES_LOCKOUT_TEMPLATE = "registration/lockout.html"
 # lockouts would turn into per-username lockouts.
 AXES_CLIENT_IP_CALLABLE = "accounts.client_ip.client_ip"
 # Proxies between the internet and the app that append to X-Forwarded-For:
-# 1 for Coolify's Traefik or Render; 2 if a CDN such as Cloudflare sits in front.
+# 1 for Coolify's Traefik; 2 if a CDN such as Cloudflare sits in front.
 TRUSTED_PROXY_COUNT = env.int("TRUSTED_PROXY_COUNT", default=1)
 
 # Sign in with GitHub (django-allauth), enabled only when credentials are set.
@@ -270,7 +263,7 @@ CSRF_COOKIE_HTTPONLY = True
 
 # --- HTTPS and security headers ---------------------------------------------
 
-# The platform's proxy (Traefik under Coolify, or Render's) terminates TLS
+# The platform's proxy (Traefik under Coolify) terminates TLS
 # and forwards the original scheme.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=not DEBUG)

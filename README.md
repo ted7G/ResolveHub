@@ -26,7 +26,7 @@ link GitHub from "GitHub sign-in" in the header.
 | Auth | Django auth + Groups, django-axes, django-allauth | Argon2, sessions and CSRF built in; groups map to roles; axes adds lockout; allauth adds GitHub sign-in |
 | Database | PostgreSQL on Neon | Managed, free tier; the schema relies on check constraints and functional unique indexes |
 | File storage | Cloudflare R2 via `django-storages` | Managed S3-compatible storage with a free tier and free downloads; private bucket, 10-minute signed links. Any S3-compatible provider is a configuration change |
-| Hosting | Docker image on Coolify | Git-based deploys, HTTPS, no sleeping; the `Dockerfile` runs on any Docker host (`render.yaml` is an alternative) |
+| Hosting | Docker image on Coolify | Git-based deploys, HTTPS, no sleeping; the same `Dockerfile` runs on any Docker host |
 | AI | OpenAI API (`gpt-4o-mini`) | One small client; `OPENAI_BASE_URL` switches to any OpenAI-compatible provider |
 | Tests, CI | pytest, GitHub Actions | Real Postgres, lint, migration check, `check --deploy`, and a build-and-run test of the image |
 

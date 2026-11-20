@@ -1,7 +1,6 @@
 """Small HTML helpers shared by the admin list and detail views."""
 
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.timesince import timesince, timeuntil
 
@@ -25,14 +24,13 @@ def priority_badge(ticket):
 def deadline_label(ticket):
     if ticket.status not in rules.ACTIVE_STATUSES:
         return "-"
-    now = timezone.now()
-    if ticket.due_at < now:
+    if ticket.is_overdue:
         return format_html(
             '<span class="rh-deadline rh-overdue">Overdue by {}</span>',
-            timesince(ticket.due_at, now, depth=1),
+            timesince(ticket.due_at, depth=1),
         )
     return format_html(
-        '<span class="rh-deadline">Due in {}</span>', timeuntil(ticket.due_at, now, depth=1)
+        '<span class="rh-deadline">Due in {}</span>', timeuntil(ticket.due_at, depth=1)
     )
 
 
