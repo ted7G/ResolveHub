@@ -121,3 +121,29 @@ def test_deleting_a_ticket_removes_its_stored_attachments(
         comment.ticket.delete()
 
     assert not default_storage.exists(stored)
+
+
+@pytest.mark.django_db
+def test_storage_outage_while_deleting_files_does_not_fail_the_delete(
+    superuser_client, make_ticket, monkeypatch, django_capture_on_commit_callbacks
+):
+    from django.urls import reverse
+
+    ticket = make_ticket()
+    for name in ("one.log", "two.log"):
+        comment = Comment(ticket=ticket, body=name)
+        comment.attachment.save(name, ContentFile(b"started\n"))
+    attempted = []
+
+    def unavailable(name):
+        attempted.append(name)
+        raise ConnectionError("storage is down")
+
+    monkeypatch.setattr(default_storage, "delete", unavailable)
+    url = reverse("admin:tickets_ticket_delete", args=[ticket.pk])
+
+    with django_capture_on_commit_callbacks(execute=True):
+        response = superuser_client.post(url, {"post": "yes"})
+
+    assert response.status_code == 302
+    assert len(attempted) == 2
