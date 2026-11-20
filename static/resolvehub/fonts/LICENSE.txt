@@ -1,0 +1,8 @@
+Bricolage Grotesque, Manrope and JetBrains Mono are distributed under the
+SIL Open Font License, Version 1.1: https://openfontlicense.org
+
+Bricolage Grotesque - Copyright 2022 The Bricolage Grotesque Project Authors
+Manrope - Copyright 2018 The Manrope Project Authors
+JetBrains Mono - Copyright 2020 The JetBrains Mono Project Authors
+
+The files here are the Latin subsets of the variable versions.

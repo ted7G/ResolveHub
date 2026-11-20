@@ -1,0 +1,22 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="NONE,NOARCHIVE">
+  <title>Something went wrong | ResolveHub</title>
+  <link rel="icon" href="{% static 'resolvehub/favicon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'resolvehub/theme.css' %}">
+</head>
+<body class="rh-error-page">
+  <main class="rh-error">
+    <a class="rh-error-logo" href="/admin/" aria-label="ResolveHub home">
+      <span class="rh-logo" aria-hidden="true">R</span>
+    </a>
+    <p class="rh-error-code">500</p>
+    <h1>Something went wrong</h1>
+    <p>The desk hit an unexpected error. It has been logged; please try again in a moment.</p>
+    <a class="button default" href="/admin/">Back to the desk</a>
+  </main>
+</body>
+</html>

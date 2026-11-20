@@ -56,6 +56,12 @@ Customer 1──* Ticket *──1 Agent 1──1 User
   customer page has an inline of their tickets. Bulk actions change status
   or assign, apply the same rules per ticket, report what was skipped and
   why, and write to the admin history.
+- **Look and feel** (`static/resolvehub/`, `templates/admin/`): the admin's
+  own templates and CSS variables, restyled rather than replaced. Header
+  navigation, a dashboard whose numbers link to the matching filtered list,
+  the conversation as a chat thread, searchable dropdowns (the Select2 copy
+  that ships with the admin) and search boxes on long filter lists, light
+  and dark themes, and phone layouts. Fonts are served by the app itself.
 - **Roles** (`accounts/roles.py`, synced by `manage.py setup_roles`):
 
   | | Support admin | Agent | Viewer |
@@ -110,7 +116,7 @@ python manage.py migrate
 python manage.py createcachetable
 python manage.py seed              # prints the demo password unless --password is given
 python manage.py runserver
-pytest                             # about 175 tests
+pytest                             # about 185 tests
 ```
 
 `seed` creates 400 customers, 3,000 tickets over six months, about 12,700
@@ -152,6 +158,9 @@ production variables set. `.env.example` lists every setting.
 
 - A customer portal or public API: the brief centres on the admin, and
   customer messages already exist in the data model.
+- A separate frontend (Next.js or similar): the brief asks for the
+  framework's built-in admin, and theming it gives a modern UI without a
+  second app to build, deploy and secure.
 - Email in and out: it needs a mail provider and many edge cases (threading,
   bounces) for little value here.
 - Pausing the deadline while waiting on the customer: it needs a status

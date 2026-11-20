@@ -1,7 +1,10 @@
 {% extends "socialaccount/base_entrance.html" %}
 {% block head_title %}GitHub sign-in cancelled{% endblock head_title %}
 {% block content %}
-  <h1>GitHub sign-in cancelled</h1>
-  <p>You stopped at GitHub, so nothing changed.
-    <a href="{% url 'admin:login' %}">Back to the login page</a>.</p>
+  <div class="rh-panel">
+    <span class="rh-icon-badge" aria-hidden="true">←</span>
+    <h1>GitHub sign-in cancelled</h1>
+    <p>You stopped at GitHub, so nothing changed.
+      <a href="{% url 'admin:login' %}">Back to the login page</a>.</p>
+  </div>
 {% endblock content %}

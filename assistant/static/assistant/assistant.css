@@ -1,42 +1,85 @@
-/* Uses the admin's own CSS variables so it follows the light/dark theme. */
+/*
+ * Form help widget. Built on the ResolveHub theme tokens, with fallbacks to
+ * the admin's own variables so it still works without the theme.
+ * Sits above the floating save bar on change forms.
+ */
 
 .rh-assistant {
     position: fixed;
-    right: 20px;
-    bottom: 20px;
+    right: 24px;
+    bottom: 100px;
     z-index: 1000;
-    font-size: 13px;
+    font-size: 0.8125rem;
 }
 
 .rh-assistant-toggle {
-    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px;
+    padding: 0 18px 0 8px;
     border: 0;
-    border-radius: 20px;
-    background: var(--button-bg);
-    color: var(--button-fg);
-    font-weight: 600;
+    border-radius: 999px;
+    background: var(--rh-ink, var(--button-bg));
+    color: #fff;
+    font: 700 0.8125rem/1 var(--font-family-primary, sans-serif);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 16px 32px -14px rgba(19, 20, 24, 0.7);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .rh-assistant-toggle:hover,
 .rh-assistant-toggle:focus-visible {
-    background: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 20px 36px -14px rgba(19, 20, 24, 0.8);
+}
+
+.rh-assistant-spark {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--rh-volt, var(--accent));
+    color: var(--rh-on-volt, #131418);
+    font-size: 0.9375rem;
+    line-height: 1;
+}
+
+.rh-assistant-toggle[aria-expanded="true"] .rh-assistant-spark {
+    transform: rotate(45deg);
+}
+
+html[data-theme="dark"] .rh-assistant-toggle {
+    background: #26282e;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .rh-assistant-toggle {
+        background: #26282e;
+    }
 }
 
 .rh-assistant-panel {
     position: absolute;
     right: 0;
-    bottom: 48px;
-    width: min(380px, calc(100vw - 40px));
-    max-height: min(560px, calc(100vh - 100px));
+    bottom: 56px;
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--hairline-color);
-    border-radius: 8px;
-    background: var(--body-bg);
-    color: var(--body-fg);
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+    width: min(400px, calc(100vw - 32px));
+    max-height: min(580px, calc(100vh - 200px));
+    border: 1px solid var(--rh-line, var(--hairline-color));
+    border-radius: 20px;
+    background: var(--rh-surface, var(--body-bg));
+    color: var(--rh-text, var(--body-fg));
+    box-shadow: 0 30px 60px -24px rgba(19, 20, 24, 0.45);
+    overflow: hidden;
+    animation: rh-assistant-in 0.18s ease-out;
+}
+
+@keyframes rh-assistant-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: none; }
 }
 
 .rh-assistant-panel[hidden] {
@@ -45,79 +88,125 @@
 
 .rh-assistant-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 10px 14px;
-    border-bottom: 1px solid var(--hairline-color);
-    background: var(--darkened-bg);
+    justify-content: space-between;
+    padding: 16px 18px;
+    background: var(--rh-ink, var(--darkened-bg));
+    color: #fff;
+}
+
+.rh-assistant-header strong {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font: 700 1rem/1 var(--rh-display, sans-serif);
+    letter-spacing: -0.01em;
+}
+
+.rh-assistant-header strong::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rh-volt, var(--accent));
+    box-shadow: 0 0 0 4px rgba(212, 255, 58, 0.18);
 }
 
 .rh-assistant-close {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
     border: 0;
-    background: none;
-    color: var(--body-quiet-color);
-    font-size: 20px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-size: 18px;
     line-height: 1;
     cursor: pointer;
 }
 
+.rh-assistant-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
 .rh-assistant-hint {
     margin: 0;
-    padding: 10px 14px 0;
-    color: var(--body-quiet-color);
-    font-size: 12px;
+    padding: 14px 18px 4px;
+    color: var(--rh-muted, var(--body-quiet-color));
+    font-size: 0.75rem;
+    line-height: 1.55;
 }
 
 .rh-assistant-log {
+    display: flex;
     flex: 1;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 60px;
+    padding: 8px 18px 12px;
     overflow-y: auto;
-    padding: 6px 14px;
 }
 
 .rh-assistant-msg {
-    margin: 8px 0;
-    padding: 8px 10px;
-    border-radius: 6px;
+    max-width: 88%;
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 16px;
+    line-height: 1.55;
     white-space: pre-wrap;
-    line-height: 1.45;
 }
 
 .rh-assistant-question {
-    margin-left: 32px;
-    background: var(--selected-bg);
+    align-self: flex-end;
+    border-bottom-right-radius: 6px;
+    background: var(--rh-volt, var(--selected-bg));
+    color: var(--rh-on-volt, var(--body-fg));
+    font-weight: 600;
 }
 
 .rh-assistant-answer {
-    margin-right: 16px;
-    background: var(--darkened-bg);
+    align-self: flex-start;
+    border-bottom-left-radius: 6px;
+    background: var(--rh-surface-2, var(--darkened-bg));
+    box-shadow: 0 0 0 1px var(--rh-line, var(--hairline-color)) inset;
 }
 
 .rh-assistant-pending {
-    color: var(--body-quiet-color);
+    align-self: flex-start;
+    color: var(--rh-muted, var(--body-quiet-color));
     font-style: italic;
 }
 
 .rh-assistant-error {
-    background: var(--message-error-bg);
-    color: var(--body-fg);
+    align-self: flex-start;
+    background: var(--rh-danger-soft, var(--message-error-bg));
+    color: var(--rh-text, var(--body-fg));
 }
 
 .rh-assistant-form {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 10px 14px 14px;
-    border-top: 1px solid var(--hairline-color);
+    gap: 8px;
+    padding: 14px 18px 18px;
+    border-top: 1px solid var(--rh-line, var(--hairline-color));
 }
 
 .rh-assistant-label {
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 700;
 }
 
 .rh-assistant-field {
+    align-self: flex-start;
     margin: 0;
-    color: var(--body-quiet-color);
-    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--rh-surface-2, var(--darkened-bg));
+    color: var(--rh-muted, var(--body-quiet-color));
+    font-size: 0.6875rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--rh-line, var(--hairline-color)) inset;
 }
 
 .rh-assistant-form textarea {
@@ -128,4 +217,19 @@
 
 .rh-assistant-form .button {
     align-self: flex-end;
+}
+
+@media (max-width: 767px) {
+    .rh-assistant {
+        right: 12px;
+        bottom: 88px;
+    }
+
+    .rh-assistant-label-text {
+        display: none;
+    }
+
+    .rh-assistant-toggle {
+        padding-right: 8px;
+    }
 }

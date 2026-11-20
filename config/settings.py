@@ -178,6 +178,8 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+# The admin theme and its fonts, served from the app rather than a font CDN.
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Attachments are capped at 5 MB (see tickets.validators). Keeping the
 # in-memory threshold slightly above that means accepted uploads are streamed

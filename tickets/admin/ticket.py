@@ -10,13 +10,14 @@ from . import actions, display
 from .filters import AssignmentFilter, DeadlineFilter
 from .forms import TicketAdminForm
 from .inlines import AddCommentInline, CommentHistoryInline
+from .searchable import SearchableSelectsMixin
 
 # Matches "RH-00042", "rh-42" or just "42" in the search box.
 _REFERENCE_RE = re.compile(r"(?:rh-)?0*(\d{1,9})", re.IGNORECASE)
 
 
 @admin.register(Ticket)
-class TicketAdmin(admin.ModelAdmin):
+class TicketAdmin(SearchableSelectsMixin, admin.ModelAdmin):
     form = TicketAdminForm
 
     list_display = [
@@ -28,7 +29,7 @@ class TicketAdmin(admin.ModelAdmin):
         "assignee",
         "deadline",
         "comment_count",
-        "created_at",
+        "created",
     ]
     list_display_links = ["reference", "subject"]
     list_filter = [
@@ -83,9 +84,6 @@ class TicketAdmin(admin.ModelAdmin):
         actions.mark_closed,
     ]
 
-    class Media:
-        css = {"all": ["tickets/admin.css"]}
-
     def get_queryset(self, request):
         # Joined here rather than via list_select_related: the changelist skips
         # list_select_related when the queryset already selects related rows,
@@ -124,8 +122,19 @@ class TicketAdmin(admin.ModelAdmin):
         return obj is None or can_edit_ticket(request.user, obj)
 
     def render_change_form(self, request, context, add=False, change=False, form_url="", obj=None):
-        if obj is not None and not self.has_change_permission(request, obj):
-            context["readonly_reason"] = readonly_reason(request.user, obj)
+        if obj is not None:
+            # The heading and strip describe the ticket as saved. After a
+            # failed save `obj` already holds the user's edits, so re-read it.
+            saved = obj
+            if request.method == "POST":
+                saved = Ticket.objects.select_related("customer").get(pk=obj.pk)
+            context["ticket_summary"] = display.ticket_summary(saved)
+            # The subject reads better than "Change ticket" as the page heading;
+            # the reference and status are in the strip underneath.
+            context["title"] = saved.subject
+            context["subtitle"] = None
+            if not self.has_change_permission(request, obj):
+                context["readonly_reason"] = readonly_reason(request.user, obj)
         return super().render_change_form(request, context, add, change, form_url, obj)
 
     def get_search_results(self, request, queryset, search_term):
@@ -159,6 +168,10 @@ class TicketAdmin(admin.ModelAdmin):
     @admin.display(description="Deadline", ordering="due_at")
     def deadline(self, obj):
         return display.deadline_label(obj)
+
+    @admin.display(description="Created", ordering="created_at")
+    def created(self, obj):
+        return display.short_date(obj.created_at)
 
     @admin.display(description="Comments", ordering="comment_count")
     def comment_count(self, obj):

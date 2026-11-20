@@ -8,12 +8,13 @@ from tickets.models import Agent, Customer, Tag
 from . import actions
 from .filters import HasActiveTicketsFilter
 from .inlines import CustomerTicketInline
+from .searchable import SearchableSelectsMixin
 
 _ACTIVE = Q(tickets__status__in=rules.ACTIVE_STATUSES)
 
 
 @admin.register(Customer)
-class CustomerAdmin(admin.ModelAdmin):
+class CustomerAdmin(SearchableSelectsMixin, admin.ModelAdmin):
     list_display = ["name", "email", "company", "active_tickets", "total_tickets", "created_at"]
     list_filter = [HasActiveTicketsFilter, "created_at"]
     search_fields = ["name", "email", "company"]
@@ -42,7 +43,7 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 @admin.register(Agent)
-class AgentAdmin(admin.ModelAdmin):
+class AgentAdmin(SearchableSelectsMixin, admin.ModelAdmin):
     list_display = ["__str__", "username", "team", "is_available", "active_tickets", "overdue"]
     list_filter = ["team", "is_available"]
     list_editable = ["is_available"]
@@ -75,7 +76,7 @@ class AgentAdmin(admin.ModelAdmin):
 
 
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(SearchableSelectsMixin, admin.ModelAdmin):
     list_display = ["name", "ticket_count"]
     search_fields = ["name"]
 

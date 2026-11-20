@@ -1,8 +1,11 @@
 {% extends "socialaccount/base_entrance.html" %}
 {% block head_title %}GitHub sign-in didn't finish{% endblock head_title %}
 {% block content %}
-  <h1>GitHub sign-in didn't finish</h1>
-  <p>This usually means the sign-in took too long or was opened from an old or
-    copied link. <a href="{% url 'admin:login' %}">Go back to the login page</a>
-    and try again.</p>
+  <div class="rh-panel">
+    <span class="rh-icon-badge is-warn" aria-hidden="true">!</span>
+    <h1>GitHub sign-in didn't finish</h1>
+    <p>This usually means the sign-in took too long or was opened from an old or
+      copied link. <a href="{% url 'admin:login' %}">Go back to the login page</a>
+      and try again.</p>
+  </div>
 {% endblock content %}

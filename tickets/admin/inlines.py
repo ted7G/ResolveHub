@@ -23,6 +23,8 @@ class CommentHistoryInline(admin.StackedInline):
     model = Comment
     verbose_name = "message"
     verbose_name_plural = "Conversation"
+    # Shown as a chat thread instead of a stack of read-only forms.
+    template = "admin/tickets/ticket/conversation.html"
     extra = 0
     fields = ["created_at", "author_label", "visibility", "body", "attachment_link"]
     readonly_fields = fields
@@ -73,7 +75,17 @@ class AddCommentInline(admin.StackedInline):
     verbose_name = "reply or internal note"
     verbose_name_plural = "Add a reply"
     extra = 1
+    max_num = 1
     can_delete = False
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        field = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == "body":
+            placeholder = "Write a reply to the customer"
+            if can_see_internal_notes(request.user):
+                placeholder += ", or an internal note for the team"
+            field.widget.attrs.update(rows=5, placeholder=placeholder)
+        return field
 
     def get_fields(self, request, obj=None):
         if can_see_internal_notes(request.user):
@@ -135,11 +147,18 @@ class CustomerTicketInline(admin.TabularInline):
     can_delete = False
     show_change_link = True
 
-    class Media:
-        css = {"all": ["tickets/admin.css"]}
-
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("assignee__user")
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        field = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == "assignee":
+            # A row per ticket: the edit/add/delete/view icons next to every
+            # assignee box would be noise. Agents are managed on their own page.
+            widget = field.widget
+            widget.can_add_related = widget.can_change_related = False
+            widget.can_delete_related = widget.can_view_related = False
+        return field
 
     def get_formset(self, request, obj=None, **kwargs):
         formset_class = super().get_formset(request, obj, **kwargs)

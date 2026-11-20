@@ -3,8 +3,9 @@
 <link rel="stylesheet" href="{% static 'assistant/assistant.css' %}">
 <div id="rh-assistant" class="rh-assistant"
      data-endpoint="{{ endpoint }}" data-model="{{ model }}" data-object-id="{{ object_id }}">
-  <button type="button" class="rh-assistant-toggle" aria-expanded="false" aria-controls="rh-assistant-panel">
-    Help with this form
+  <button type="button" class="rh-assistant-toggle" aria-expanded="false" aria-controls="rh-assistant-panel" aria-label="Help with this form">
+    <span class="rh-assistant-spark" aria-hidden="true">✦</span>
+    <span class="rh-assistant-label-text">Help with this form</span>
   </button>
   <section id="rh-assistant-panel" class="rh-assistant-panel" aria-label="Form help" hidden>
     <header class="rh-assistant-header">
@@ -22,7 +23,7 @@
       <p class="rh-assistant-field" hidden></p>
       <textarea id="rh-assistant-question" rows="3" maxlength="500" required
                 placeholder="e.g. Why can't I set this ticket to Closed?"></textarea>
-      <button type="submit" class="button">Ask</button>
+      <button type="submit" class="button default">Ask</button>
     </form>
   </section>
 </div>

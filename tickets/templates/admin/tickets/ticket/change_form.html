@@ -1,6 +1,16 @@
 {% extends "admin/change_form.html" %}
 
 {% block form_top %}
+  {% if ticket_summary %}
+    <div class="rh-ticket-head">
+      <span class="rh-ref">{{ ticket_summary.reference }}</span>
+      <span class="rh-badge rh-status-{{ ticket_summary.status.value }}">{{ ticket_summary.status.label }}</span>
+      <span class="rh-badge rh-priority-{{ ticket_summary.priority.value }}">{{ ticket_summary.priority.label }} priority</span>
+      <span class="rh-meta"><span class="rh-meta-label">Deadline</span>{{ ticket_summary.deadline }}</span>
+      <span class="rh-meta"><span class="rh-meta-label">Customer</span>{{ ticket_summary.customer }}</span>
+      <span class="rh-meta"><span class="rh-meta-label">Opened</span>{{ ticket_summary.created_at|timesince }} ago</span>
+    </div>
+  {% endif %}
   {% if readonly_reason %}
     <p class="rh-readonly-note">{{ readonly_reason }}</p>
   {% endif %}

@@ -30,7 +30,11 @@
   const adminForm = document.querySelector("#content-main form");
   if (adminForm) {
     adminForm.addEventListener("focusin", (event) => {
-      const input = event.target;
+      let input = event.target;
+      // Searchable dropdowns (Select2) take focus on their own element; the
+      // field is the original <select> just before it.
+      const select2 = input.closest && input.closest(".select2-container");
+      if (select2 && select2.previousElementSibling) input = select2.previousElementSibling;
       if (!input.name || input.type === "hidden") return;
       currentField = input.name.replace(/^.+-\d+-/, "");
       const label = input.id && document.querySelector(`label[for="${CSS.escape(input.id)}"]`);

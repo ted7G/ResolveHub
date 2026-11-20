@@ -6,42 +6,47 @@
 {% endcomment %}
 {% block head_title %}GitHub sign-in{% endblock head_title %}
 {% block content %}
-  <h1>GitHub sign-in</h1>
+  <div class="rh-panel">
+    <span class="rh-icon-badge" aria-hidden="true">⇄</span>
+    <h1>GitHub sign-in</h1>
 
-  {% if form.non_field_errors %}
-    <ul class="errorlist nonfield">
-      {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
-    </ul>
-  {% endif %}
+    {% if form.non_field_errors %}
+      <ul class="errorlist nonfield">
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
 
-  {% if form.accounts %}
-    <p>These GitHub accounts can sign in as <strong>{{ request.user.get_username }}</strong>:</p>
-    <form method="post" action="{% url 'socialaccount_connections' %}">
+    {% if form.accounts %}
+      <p>These GitHub accounts can sign in as <strong>{{ request.user.get_username }}</strong>:</p>
+      <form method="post" action="{% url 'socialaccount_connections' %}">
+        {% csrf_token %}
+        <ul class="rh-account-list">
+        {% for account in form.accounts %}
+          <li>
+            <label>
+              <input type="radio" name="account" value="{{ account.pk }}" required
+                     {% if form.accounts|length == 1 %}checked{% endif %}>
+              {{ account.get_provider_account }} ({{ account.get_provider.name }})
+            </label>
+          </li>
+        {% endfor %}
+        </ul>
+        <div class="submit-row">
+          <input type="submit" value="Unlink selected account">
+        </div>
+      </form>
+    {% else %}
+      <p>No GitHub account is linked to <strong>{{ request.user.get_username }}</strong> yet.</p>
+    {% endif %}
+
+    <h2>Link a GitHub account</h2>
+    <p class="help">After linking, "Sign in with GitHub" on the login page signs you in as this login.
+      Your password keeps working either way.</p>
+    <form method="post" action="{% provider_login_url 'github' process='connect' %}">
       {% csrf_token %}
-      {% for account in form.accounts %}
-        <p>
-          <label>
-            <input type="radio" name="account" value="{{ account.pk }}" required
-                   {% if form.accounts|length == 1 %}checked{% endif %}>
-            {{ account.get_provider_account }} ({{ account.get_provider.name }})
-          </label>
-        </p>
-      {% endfor %}
       <div class="submit-row">
-        <input type="submit" value="Unlink selected account">
+        <input type="submit" value="Connect GitHub">
       </div>
     </form>
-  {% else %}
-    <p>No GitHub account is linked to <strong>{{ request.user.get_username }}</strong> yet.</p>
-  {% endif %}
-
-  <h2>Link a GitHub account</h2>
-  <p class="help">After linking, "Sign in with GitHub" on the login page signs you in as this login.
-    Your password keeps working either way.</p>
-  <form method="post" action="{% provider_login_url 'github' process='connect' %}">
-    {% csrf_token %}
-    <div class="submit-row">
-      <input type="submit" value="Connect GitHub">
-    </div>
-  </form>
+  </div>
 {% endblock content %}

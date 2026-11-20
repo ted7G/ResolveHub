@@ -1,0 +1,57 @@
+{% comment %}
+  The conversation as a thread: customer messages on the left, staff replies
+  on the right, internal notes marked. Read-only, so only the formset's
+  management form and hidden ids are rendered to keep the POST complete.
+{% endcomment %}
+{% with formset=inline_admin_formset.formset %}
+{# A new ticket has no conversation yet; the formset stays in the page for the POST. #}
+<div class="inline-group rh-thread" id="{{ formset.prefix }}-group"{% if not formset.instance.pk %} hidden{% endif %}>
+  <h2>
+    {{ inline_admin_formset.opts.verbose_name_plural|capfirst }}
+    <span class="rh-count">{{ formset.forms|length }} message{{ formset.forms|length|pluralize }}</span>
+  </h2>
+  {{ formset.management_form }}
+  {{ formset.non_form_errors }}
+
+  {% if not formset.forms %}
+    <p class="rh-thread-empty">No messages yet.</p>
+  {% else %}
+    <ol class="rh-thread-list">
+      {% for inline_admin_form in inline_admin_formset %}
+        {% with message=inline_admin_form.original %}
+          <li class="rh-msg {% if message.author_id %}is-staff{% else %}is-customer{% endif %}{% if message.is_internal %} is-internal{% endif %}">
+            {% if inline_admin_form.needs_explicit_pk_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+            {% if inline_admin_form.fk_field %}{{ inline_admin_form.fk_field.field }}{% endif %}
+            {% if message.author_id %}
+              {% firstof message.author.get_full_name message.author.get_username as author_name %}
+            {% else %}
+              {% firstof message.ticket.customer.name as author_name %}
+            {% endif %}
+            <span class="rh-msg-avatar" aria-hidden="true">{{ author_name|first|upper }}</span>
+            <div class="rh-msg-body">
+              <div class="rh-msg-meta">
+                <strong>{{ author_name }}</strong>
+                {% if message.is_internal %}
+                  <span class="rh-msg-tag is-internal">Internal note</span>
+                {% elif message.author_id %}
+                  <span class="rh-msg-tag">Staff reply</span>
+                {% else %}
+                  <span class="rh-msg-tag is-customer">Customer</span>
+                {% endif %}
+                <time datetime="{{ message.created_at|date:'c' }}" title="{{ message.created_at }}">{{ message.created_at|date:"M j, H:i" }}</time>
+              </div>
+              <div class="rh-bubble">{{ message.body|linebreaksbr }}</div>
+              {% if message.attachment %}
+                <a class="rh-file" href="{{ message.attachment.url }}" target="_blank" rel="noopener noreferrer">
+                  <span class="rh-file-icon" aria-hidden="true">↓</span>
+                  {{ message.attachment_name|default:"Download attachment" }}
+                </a>
+              {% endif %}
+            </div>
+          </li>
+        {% endwith %}
+      {% endfor %}
+    </ol>
+  {% endif %}
+</div>
+{% endwith %}

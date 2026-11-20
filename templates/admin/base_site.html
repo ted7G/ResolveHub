@@ -1,11 +1,65 @@
 {% extends "admin/base_site.html" %}
-{% load assistant_tags %}
+{% load static assistant_tags desk_tags %}
 
-{% block userlinks %}
-  {% if github_login_enabled %}
-    <a href="{% url 'socialaccount_connections' %}">GitHub sign-in</a> /
-  {% endif %}
+{% block extrahead %}
   {{ block.super }}
+  {% comment %}
+    Loaded in extrahead rather than extrastyle so the theme comes after the
+    page stylesheets it restyles (login, changelists, forms). Form media is
+    output later still, so rules aimed at widget CSS such as Select2 carry
+    extra weight in theme.css.
+  {% endcomment %}
+  <link rel="preload" href="{% static 'resolvehub/fonts/manrope.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'resolvehub/fonts/bricolage-grotesque.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{% static 'resolvehub/theme.css' %}">
+  <link rel="stylesheet" href="{% static 'tickets/admin.css' %}">
+  <link rel="icon" href="{% static 'resolvehub/favicon.svg' %}" type="image/svg+xml">
+  <meta name="theme-color" content="#131418">
+  <script src="{% static 'resolvehub/menu.js' %}" defer></script>
+{% endblock %}
+
+{% block branding %}
+  <div id="site-name">
+    <a href="{% url 'admin:index' %}" aria-label="{{ site_header }} home">
+      <span class="rh-logo" aria-hidden="true">R</span>
+      <span class="rh-logo-word" aria-hidden="true">Resolve<span>Hub</span></span>
+    </a>
+  </div>
+  {% if user.is_anonymous %}{% include "admin/color_theme_toggle.html" %}{% endif %}
+{% endblock %}
+
+{% block nav-global %}
+  {% if has_permission and available_apps %}{% top_nav %}{% endif %}
+{% endblock %}
+
+{% block usertools %}
+  {% if has_permission %}
+    <div id="user-tools">
+      {% include "admin/color_theme_toggle.html" %}
+      <details class="rh-usermenu">
+        <summary class="rh-user">
+          <span class="rh-avatar" aria-hidden="true">{% firstof user.first_name|first|upper user.get_username|first|upper %}{{ user.last_name|first|upper }}</span>
+          <span class="rh-user-name">
+            {% firstof user.get_short_name user.get_username %}
+            <span class="rh-user-role">{% if user.is_superuser %}Superuser{% else %}{{ user.groups.all|join:", "|default:"Staff" }}{% endif %}</span>
+          </span>
+        </summary>
+        <div class="rh-usermenu-panel">
+          <p class="rh-usermenu-who">Signed in as <strong>{{ user.get_username }}</strong></p>
+          {% if github_login_enabled %}
+            <a href="{% url 'socialaccount_connections' %}">GitHub sign-in</a>
+          {% endif %}
+          {% if user.has_usable_password %}
+            <a href="{% url 'admin:password_change' %}">Change password</a>
+          {% endif %}
+          <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+            {% csrf_token %}
+            <button type="submit">Log out</button>
+          </form>
+        </div>
+      </details>
+    </div>
+  {% endif %}
 {% endblock %}
 
 {% block footer %}
