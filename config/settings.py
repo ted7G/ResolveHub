@@ -130,8 +130,8 @@ CACHES = {
 
 # --- File storage -----------------------------------------------------------
 #
-# Uploads go to S3-compatible object storage: a Garage server in production,
-# though MinIO, Cloudflare R2, Backblaze B2 or AWS S3 work with the same settings.
+# Uploads go to S3-compatible object storage: Cloudflare R2 in production,
+# though AWS S3, Backblaze B2 or a self-hosted Garage/MinIO work the same way.
 # "local" and "memory" exist only for development and the test suite, and
 # are refused unless DEBUG is on, so production can never quietly write
 # uploads to the container's ephemeral disk.

@@ -25,7 +25,7 @@ link GitHub from "GitHub sign-in" in the header.
 | Framework, admin | Django 5.2 LTS, built-in admin | Filters, search, inlines, actions and per-object permission hooks out of the box, so the work goes into behaviour, not UI plumbing |
 | Auth | Django auth + Groups, django-axes, django-allauth | Argon2, sessions and CSRF built in; groups map to roles; axes adds lockout; allauth adds GitHub sign-in |
 | Database | PostgreSQL on Neon | Managed, free tier; the schema relies on check constraints and functional unique indexes |
-| File storage | S3-compatible object storage via `django-storages` | Private bucket, 10-minute signed download links; the provider is configuration only |
+| File storage | Cloudflare R2 via `django-storages` | Managed S3-compatible storage with a free tier and free downloads; private bucket, 10-minute signed links. Any S3-compatible provider is a configuration change |
 | Hosting | Docker image on Coolify | Git-based deploys, HTTPS, no sleeping; the `Dockerfile` runs on any Docker host (`render.yaml` is an alternative) |
 | AI | OpenAI API (`gpt-4o-mini`) | One small client; `OPENAI_BASE_URL` switches to any OpenAI-compatible provider |
 | Tests, CI | pytest, GitHub Actions | Real Postgres, lint, migration check, `check --deploy`, and a build-and-run test of the image |
@@ -131,8 +131,8 @@ build pack Dockerfile, port 8000, then set:
 |---|---|
 | `SECRET_KEY`, `ALLOWED_HOSTS` | random string; the app's domain |
 | `DATABASE_URL` | Neon connection string (direct, not `-pooler`) |
-| `S3_ENDPOINT_URL`, `S3_BUCKET_NAME`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | from the storage provider |
-| `S3_REGION`, `S3_ADDRESSING_STYLE` | only if the provider needs them |
+| `S3_ENDPOINT_URL`, `S3_BUCKET_NAME`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | R2 bucket and an API token limited to it (Object Read & Write); endpoint `https://<account-id>.r2.cloudflarestorage.com` |
+| `S3_REGION`, `S3_ADDRESSING_STYLE` | not needed for R2; for self-hosted Garage or MinIO use their region and `path` |
 | `OPENAI_API_KEY` | optional |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | optional; callback `https://<host>/accounts/github/login/callback/` |
 
