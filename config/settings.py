@@ -247,6 +247,7 @@ SOCIALACCOUNT_ONLY = True  # no allauth password, sign-up or reset pages
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_ADAPTER = "accounts.adapters.ClosedSignupAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "accounts.adapters.LinkedAccountsOnlyAdapter"
+SOCIALACCOUNT_FORMS = {"disconnect": "accounts.forms.UnlinkGitHubForm"}
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
 SOCIALACCOUNT_STORE_TOKENS = False
 SOCIALACCOUNT_PROVIDERS = {

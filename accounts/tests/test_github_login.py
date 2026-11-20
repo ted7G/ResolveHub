@@ -145,3 +145,31 @@ def test_there_is_only_one_login_page(client):
 
     assert response.status_code == 302
     assert response["Location"] == reverse("admin:login") + "?next=/admin/"
+
+
+def test_linked_github_account_can_be_unlinked(client, make_user):
+    staff = make_user()
+    client.force_login(staff)
+    github_round_trip(client, process="connect")
+    account = SocialAccount.objects.get(user=staff)
+    page = client.get(reverse("socialaccount_connections")).content.decode()
+    assert PROFILE["login"] in page
+
+    response = client.post(reverse("socialaccount_connections"), {"account": account.pk})
+
+    assert response.status_code == 302
+    assert not SocialAccount.objects.filter(pk=account.pk).exists()
+
+
+def test_unlinking_is_refused_with_a_reason_when_there_is_no_password(client, make_user):
+    staff = make_user()
+    staff.set_unusable_password()
+    staff.save()
+    client.force_login(staff)
+    github_round_trip(client, process="connect")
+    account = SocialAccount.objects.get(user=staff)
+
+    response = client.post(reverse("socialaccount_connections"), {"account": account.pk})
+
+    assert SocialAccount.objects.filter(pk=account.pk).exists()
+    assert "has no password" in response.content.decode()
