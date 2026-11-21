@@ -576,6 +576,7 @@ body.login #content-main {
 }
 
 body.login .form-row {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -593,28 +594,63 @@ body.login .form-row label {
 body.login .form-row input {
     width: 100%;
     height: 48px;
+    margin: 0; /* the icon's offset below assumes nothing under the field */
     padding: 0 16px;
     border-radius: 12px;
-    background-repeat: no-repeat;
-    background-position: 16px center;
-    background-size: 18px;
     font-size: 0.9375rem;
 }
 
-/* Person and lock icons inside the sign-in fields. The text starts after
-   the icon; the selector has to outrank Django's login.css, which sets
-   `padding: 8px` on these two fields by id. */
+/* The text starts after the icon. The selector has to outrank Django's
+   login.css, which sets `padding: 8px` on these two fields by id. */
 body.login .form-row #id_username,
 body.login .form-row #id_password {
     padding-left: 46px;
 }
 
-body.login #id_username {
+/* Person and lock icons, drawn on the row over the field's left edge rather
+   than as the field's background: browsers remove background images from
+   autofilled fields. Bottom offset = row padding + (48px field - 18px) / 2. */
+body.login .form-row:has(#id_username)::after,
+body.login .form-row:has(#id_password)::after {
+    content: "";
+    position: absolute;
+    bottom: 31px;
+    left: 16px;
+    width: 18px;
+    height: 18px;
+    background: no-repeat center / 18px;
+    pointer-events: none;
+}
+
+body.login .form-row:has(#id_username)::after {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8790' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c.8-4.2 4-6.5 8-6.5s7.2 2.3 8 6.5'/%3E%3C/svg%3E");
 }
 
-body.login #id_password {
+body.login .form-row:has(#id_password)::after {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8790' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.5' y='10.5' width='15' height='10' rx='2'/%3E%3Cpath d='M8 10.5V7.5a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E");
+}
+
+/* Autofilled fields keep the theme instead of the browser's pale blue: an
+   inset shadow covers the forced background colour. The prefixed selector
+   gets its own rules so a browser that doesn't know one keeps the other. */
+body.login .form-row input:-webkit-autofill {
+    -webkit-text-fill-color: var(--rh-text);
+    caret-color: var(--rh-text);
+    box-shadow: 0 0 0 100px var(--rh-surface) inset;
+}
+
+body.login .form-row input:-webkit-autofill:focus {
+    box-shadow: 0 0 0 100px var(--rh-surface) inset, var(--rh-ring);
+}
+
+body.login .form-row input:autofill {
+    -webkit-text-fill-color: var(--rh-text);
+    caret-color: var(--rh-text);
+    box-shadow: 0 0 0 100px var(--rh-surface) inset;
+}
+
+body.login .form-row input:autofill:focus {
+    box-shadow: 0 0 0 100px var(--rh-surface) inset, var(--rh-ring);
 }
 
 html body.login #content .submit-row {
