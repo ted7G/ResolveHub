@@ -1,10 +1,12 @@
+{% load static %}
 <div class="rh-hello">
   <div>
-    <h1>{{ greeting }}, <em>{% firstof user.first_name user.get_username %}</em></h1>
+    <h1><span data-rh-greeting>{{ greeting }}</span>, <em>{% firstof user.first_name user.get_username %}</em></h1>
     <p>{% if counts %}Here's where the desk stands right now.{% else %}Pick a section below to get started.{% endif %}</p>
   </div>
-  <span class="rh-today">{{ now|date:"l, j F" }}</span>
+  <span class="rh-today" data-rh-today>{{ now|date:"l, j F" }}</span>
 </div>
+<script src="{% static 'resolvehub/local-time.js' %}" defer></script>
 
 {% if counts %}
   <div class="rh-stats">
