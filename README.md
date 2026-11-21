@@ -159,6 +159,9 @@ variables set. `.env.example` lists every setting.
   the real fix is a Neon project in the server's region.
 - **One-file attachments.** One file per message keeps forms and validation
   simple.
+- **Staff are deactivated, not deleted.** A message with no author is the
+  customer's, so deleting a staff member who wrote messages is refused
+  (`PROTECT`); untick "Active" instead and their history stays theirs.
 - **Upload size is enforced in the app.** An oversized file is read to the
   end (only the first 5 MB kept in memory) before it is rejected. A request
   size limit on the proxy would stop it earlier; I kept the check in code so

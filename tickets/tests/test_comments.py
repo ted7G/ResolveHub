@@ -147,3 +147,29 @@ def test_storage_outage_while_deleting_files_does_not_fail_the_delete(
 
     assert response.status_code == 302
     assert len(attempted) == 2
+
+
+# --- Authors -----------------------------------------------------------------
+
+
+@pytest.mark.django_db
+def test_staff_who_wrote_messages_are_kept_and_the_admin_says_why(
+    superuser_client, make_user, make_ticket
+):
+    from django.urls import reverse
+
+    writer = make_user(username="leaver")
+    ticket = make_ticket()
+    Comment.objects.create(ticket=ticket, author=writer, body="Note", is_internal=True)
+    reply = Comment.objects.create(ticket=ticket, author=writer, body="Reply")
+    url = reverse("admin:auth_user_delete", args=[writer.pk])
+
+    page = superuser_client.get(url)
+    superuser_client.post(url, {"post": "yes"})
+
+    # Deleting would turn their replies into "customer" messages, so the
+    # admin refuses with its usual explanation instead of a server error.
+    assert page.status_code == 200
+    assert "protected related objects" in page.content.decode()
+    reply.refresh_from_db()
+    assert reply.author == writer

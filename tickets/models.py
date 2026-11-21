@@ -310,9 +310,12 @@ def attachment_upload_to(instance, filename):
 
 class Comment(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="comments")
+    # PROTECT, not SET_NULL: an empty author means "the customer", so nulling
+    # it would turn a staff reply into a customer message (and an internal
+    # note into one the database refuses). Staff who leave are deactivated.
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
         null=True,
         blank=True,
         related_name="ticket_comments",
