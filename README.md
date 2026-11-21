@@ -12,9 +12,8 @@ response deadlines, and the conversation lives on the ticket.
 | `agent` | Agent | Work your own and unassigned tickets; colleagues' open read-only |
 | `viewer` | Viewer | Everything read-only, internal notes hidden |
 
-Password for all three: `12345678`, kept simple for the demo. The seed sets
-it directly; passwords set in the admin must be 10+ characters. Five wrong
-passwords lock a login for 15 minutes from that address. The AI assistant
+Password for all three: `resolvehub-demo-2026`. Five wrong passwords lock a
+login for 15 minutes from that address. The AI assistant
 is **Ask AI** in the header (or the round button at the bottom right) on
 every page. GitHub sign-in works after you link it from the menu under your
 name.
@@ -57,16 +56,11 @@ Customer 1──* Ticket *──1 Agent 1──1 User
   customer page has an inline of their tickets. Bulk actions change status
   or assign, apply the same rules per ticket, report what was skipped and
   why, and write to the admin history.
-- **Look and feel** (`static/resolvehub/`, `templates/admin/`): the admin's
-  own templates and CSS variables, restyled rather than replaced. Header
-  navigation; a dashboard with live numbers and charts (ticket flow, load by
-  priority, team workload), each linking to the matching filtered list
-  (`tickets/dashboard.py`); filters as buttons above the table; search as
-  you type; the conversation as a chat thread; searchable dropdowns (the
-  Select2 copy that ships with the admin); one line-icon set
-  (`tickets/templatetags/rh_icons.py`); light and dark themes; layouts
-  checked from 390px phones to 2560px screens. Chart colours were checked
-  for colour-blind separation.
+- **Look and feel** (`static/resolvehub/`, `templates/admin/`): the stock
+  Django admin, restyled through its own template blocks and CSS variables.
+  No view was rebuilt; every page is still the admin's changelist or change
+  form. The dashboard adds live numbers and charts that link to filtered
+  lists (`tickets/dashboard.py`).
 - **Roles** (`accounts/roles.py`, synced by `manage.py setup_roles`):
 
   | | Support admin | Agent | Viewer |
