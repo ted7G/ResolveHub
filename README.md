@@ -146,8 +146,9 @@ build pack Dockerfile, port 8000, then set:
 | `OPENAI_API_KEY` | optional |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | optional; callback `https://<host>/accounts/github/login/callback/` |
 
-A public-repository resource has no GitHub webhook, so each deploy is
-started with Coolify's **Redeploy** button or its API, not by a push. Demo
+The Coolify resource isn't connected to a GitHub webhook, so each deploy is
+started with Coolify's **Redeploy** button or its API after CI passes, not
+by a push. Demo
 data is loaded by running `seed` once from a machine with the production
 variables set. `.env.example` lists every setting.
 
