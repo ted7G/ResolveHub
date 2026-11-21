@@ -1,8 +1,38 @@
 /*
  * Help desk pieces on top of the ResolveHub theme: status and priority
- * badges, the ticket header strip, the conversation thread and the reply box.
- * Each badge sets its own colours, so they read on light and dark pages.
+ * badges, deadlines, the ticket header strip, the conversation thread and
+ * the reply box. Colours use light-dark(), like the theme's tokens.
  */
+
+:root,
+html[data-theme] {
+    /* Status badges: tinted fill, dark text, a dot in the chart colour. */
+    --st-new-bg: light-dark(#e6edff, rgba(122, 162, 255, 0.16));
+    --st-new-fg: light-dark(#2541b2, #a9c1ff);
+    --st-new-dot: light-dark(#2a78d6, #3987e5);
+    --st-open-bg: light-dark(#e2f6ee, rgba(25, 158, 112, 0.18));
+    --st-open-fg: light-dark(#0e6b4a, #6fd8ae);
+    --st-open-dot: light-dark(#1baf7a, #199e70);
+    --st-pending-bg: light-dark(#fff0d4, rgba(255, 181, 71, 0.15));
+    --st-pending-fg: light-dark(#8a5300, #ffc46b);
+    --st-pending-dot: light-dark(#eda100, #c98500);
+    --st-resolved-bg: light-dark(#efe8ff, rgba(167, 139, 250, 0.16));
+    --st-resolved-fg: light-dark(#5b34c7, #c4b1ff);
+    --st-closed-bg: light-dark(#ecebe7, rgba(255, 255, 255, 0.07));
+    --st-closed-fg: light-dark(#5e5d63, #a19fa8);
+    --pr-low-fg: light-dark(#6c6a72, #a19fa8);
+    --pr-low-line: light-dark(#d6d1c4, #353841);
+    --pr-normal-fg: light-dark(#33415c, #b8c6e8);
+    --pr-normal-line: light-dark(#c9d3e6, #34405c);
+    --pr-high-bg: light-dark(#ffe9d6, rgba(249, 115, 22, 0.16));
+    --pr-high-fg: light-dark(#a2440a, #ffad73);
+
+    /* Internal notes: amber, striped so they never pass for a reply. */
+    --note-a: light-dark(#fff6e2, rgba(255, 181, 71, 0.14));
+    --note-b: light-dark(#fff1d6, rgba(255, 181, 71, 0.09));
+    --note-fg: light-dark(#4a3200, #ffe2b0);
+    --note-line: light-dark(#f4d79a, rgba(255, 181, 71, 0.3));
+}
 
 /* --- Badges ---------------------------------------------------------------- */
 
@@ -14,11 +44,11 @@
     height: 24px;
     padding: 0 10px 0 9px;
     border-radius: 999px;
+    background: var(--st-closed-bg);
+    color: var(--st-closed-fg);
     font: 700 0.6875rem/1 var(--font-family-primary, sans-serif);
     letter-spacing: 0.01em;
     white-space: nowrap;
-    color: #3b3b42;
-    background: #ecebe7;
 }
 
 .rh-badge::before {
@@ -29,46 +59,28 @@
     background: var(--dot);
 }
 
-.rh-status-new { background: #e6edff; color: #2541b2; }
-.rh-status-open { background: #e8f8c8; color: #3a6200; --dot: #6aa800; }
-.rh-status-pending { background: #fff0d4; color: #8a5300; --dot: #f59e0b; }
-.rh-status-resolved { background: #efe8ff; color: #5b34c7; }
-.rh-status-closed { background: #ecebe7; color: #5e5d63; --dot: #a3a1a8; }
+.rh-status-new { background: var(--st-new-bg); color: var(--st-new-fg); --dot: var(--st-new-dot); }
+.rh-status-open { background: var(--st-open-bg); color: var(--st-open-fg); --dot: var(--st-open-dot); }
+.rh-status-pending { background: var(--st-pending-bg); color: var(--st-pending-fg); --dot: var(--st-pending-dot); }
+.rh-status-resolved { background: var(--st-resolved-bg); color: var(--st-resolved-fg); }
+.rh-status-closed { background: var(--st-closed-bg); color: var(--st-closed-fg); }
 
-.rh-priority-low { background: transparent; color: #6c6a72; box-shadow: 0 0 0 1px #d6d1c4 inset; --dot: #b5b2ba; }
-.rh-priority-normal { background: transparent; color: #33415c; box-shadow: 0 0 0 1px #c9d3e6 inset; --dot: #6b86c9; }
-.rh-priority-high { background: #ffe9d6; color: #a2440a; --dot: #f97316; }
+.rh-priority-low { background: transparent; color: var(--pr-low-fg); box-shadow: 0 0 0 1px var(--pr-low-line) inset; }
+.rh-priority-normal { background: transparent; color: var(--pr-normal-fg); box-shadow: 0 0 0 1px var(--pr-normal-line) inset; }
+.rh-priority-high { background: var(--pr-high-bg); color: var(--pr-high-fg); --dot: #f97316; }
 .rh-priority-urgent { background: #e5484d; color: #ffffff; --dot: #ffffff; }
-.rh-priority-urgent::before { animation: rh-pulse 1.6s ease-out infinite; }
+
+.rh-priority-urgent::before {
+    animation: rh-pulse 1.6s ease-out infinite;
+}
 
 @keyframes rh-pulse {
     0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.85); }
     100% { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0); }
 }
 
-/* Dark pages: translucent fills with lighter text. */
-html[data-theme="dark"] .rh-status-new { background: rgba(122, 162, 255, 0.16); color: #a9c1ff; }
-html[data-theme="dark"] .rh-status-open { background: rgba(212, 255, 58, 0.14); color: #d4ff3a; --dot: #d4ff3a; }
-html[data-theme="dark"] .rh-status-pending { background: rgba(255, 181, 71, 0.15); color: #ffc46b; --dot: #ffb547; }
-html[data-theme="dark"] .rh-status-resolved { background: rgba(167, 139, 250, 0.16); color: #c4b1ff; }
-html[data-theme="dark"] .rh-status-closed { background: rgba(255, 255, 255, 0.07); color: #a19fa8; --dot: #6f6d76; }
-html[data-theme="dark"] .rh-priority-low { color: #a19fa8; box-shadow: 0 0 0 1px #353841 inset; }
-html[data-theme="dark"] .rh-priority-normal { color: #b8c6e8; box-shadow: 0 0 0 1px #34405c inset; }
-html[data-theme="dark"] .rh-priority-high { background: rgba(249, 115, 22, 0.16); color: #ffad73; }
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .rh-status-new { background: rgba(122, 162, 255, 0.16); color: #a9c1ff; }
-    :root:not([data-theme="light"]) .rh-status-open { background: rgba(212, 255, 58, 0.14); color: #d4ff3a; --dot: #d4ff3a; }
-    :root:not([data-theme="light"]) .rh-status-pending { background: rgba(255, 181, 71, 0.15); color: #ffc46b; --dot: #ffb547; }
-    :root:not([data-theme="light"]) .rh-status-resolved { background: rgba(167, 139, 250, 0.16); color: #c4b1ff; }
-    :root:not([data-theme="light"]) .rh-status-closed { background: rgba(255, 255, 255, 0.07); color: #a19fa8; --dot: #6f6d76; }
-    :root:not([data-theme="light"]) .rh-priority-low { color: #a19fa8; box-shadow: 0 0 0 1px #353841 inset; }
-    :root:not([data-theme="light"]) .rh-priority-normal { color: #b8c6e8; box-shadow: 0 0 0 1px #34405c inset; }
-    :root:not([data-theme="light"]) .rh-priority-high { background: rgba(249, 115, 22, 0.16); color: #ffad73; }
-}
-
-/* Badges on the dark login panel. */
-.rh-ticket-card .rh-status-open { background: rgba(212, 255, 58, 0.16); color: #d4ff3a; --dot: #d4ff3a; }
+/* Badges on the always-dark sign-in panel. */
+.rh-ticket-card .rh-status-open { background: rgba(25, 158, 112, 0.22); color: #6fd8ae; --dot: #199e70; }
 .rh-ticket-card .rh-status-resolved { background: rgba(167, 139, 250, 0.2); color: #d3c5ff; }
 
 /* --- Deadlines ------------------------------------------------------------- */
@@ -83,7 +95,7 @@ html[data-theme="dark"] .rh-priority-high { background: rgba(249, 115, 22, 0.16)
 }
 
 .rh-overdue {
-    color: #d92d20;
+    color: var(--rh-danger-text);
 }
 
 .rh-overdue::before {
@@ -95,18 +107,12 @@ html[data-theme="dark"] .rh-priority-high { background: rgba(249, 115, 22, 0.16)
     transform: rotate(45deg);
 }
 
-html[data-theme="dark"] .rh-overdue { color: #ff7b72; }
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .rh-overdue { color: #ff7b72; }
-}
-
 .rh-internal-note {
-    color: #b45309;
+    color: var(--rh-warn-text);
     font-weight: 700;
 }
 
-/* --- Ticket header strip --------------------------------------------------- */
+/* --- Ticket header strip and read-only note ---------------------------------- */
 
 .rh-ticket-head {
     display: flex;
@@ -115,24 +121,18 @@ html[data-theme="dark"] .rh-overdue { color: #ff7b72; }
     gap: 10px 12px;
     margin: 0 0 22px;
     padding: 14px 16px;
-    border: 1px solid var(--rh-line, #e8e4da);
-    border-radius: var(--rh-radius, 16px);
-    background: var(--rh-surface, #fff);
-    box-shadow: var(--rh-shadow, none);
+    border: 1px solid var(--rh-line);
+    border-radius: var(--rh-radius);
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow);
 }
 
 .rh-ref {
     padding: 5px 10px;
     border-radius: 8px;
-    background: var(--rh-ink, #131418);
-    color: #fff;
-    font: 700 0.75rem/1 var(--font-family-monospace, monospace);
-}
-
-html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on-volt); }
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .rh-ref { background: var(--rh-volt); color: var(--rh-on-volt); }
+    background: var(--rh-strong-bg);
+    color: var(--rh-strong-fg);
+    font: 700 0.75rem/1 var(--font-family-monospace);
 }
 
 .rh-meta {
@@ -140,13 +140,13 @@ html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on
     align-items: center;
     gap: 8px;
     padding-left: 12px;
-    border-left: 1px solid var(--rh-line, #e8e4da);
+    border-left: 1px solid var(--rh-line);
     font-size: 0.8125rem;
     font-weight: 600;
 }
 
 .rh-meta-label {
-    color: var(--rh-faint, #9b98a0);
+    color: var(--rh-faint);
     font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -160,9 +160,9 @@ html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on
     margin: 0 0 22px;
     padding: 14px 18px;
     border: 1px solid color-mix(in srgb, #f59e0b 35%, transparent);
-    border-radius: var(--rh-radius-sm, 10px);
-    background: var(--rh-warn-soft, #fff3d9);
-    color: var(--rh-text, #1b1c21);
+    border-radius: var(--rh-radius-sm);
+    background: var(--rh-warn-soft);
+    color: var(--rh-text);
     font-weight: 600;
 }
 
@@ -175,7 +175,7 @@ html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on
     height: 30px;
     border-radius: 8px;
     background: rgba(245, 158, 11, 0.22);
-    color: #b45309;
+    color: var(--rh-warn-text);
     font: 800 0.9375rem/1 var(--rh-display, sans-serif);
 }
 
@@ -190,17 +190,16 @@ html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on
     margin-left: auto;
     padding: 4px 10px;
     border-radius: 999px;
-    background: var(--rh-surface-2, #faf9f5);
-    color: var(--rh-muted, #6c6a72);
-    font: 700 0.6875rem/1 var(--font-family-primary, sans-serif);
-    letter-spacing: 0.02em;
-    box-shadow: 0 0 0 1px var(--rh-line, #e8e4da) inset;
+    background: var(--rh-surface-2);
+    color: var(--rh-muted);
+    font: 700 0.6875rem/1 var(--font-family-primary);
+    box-shadow: 0 0 0 1px var(--rh-line) inset;
 }
 
 .rh-thread-empty {
     margin: 0;
     padding: 22px 20px;
-    color: var(--rh-muted, #6c6a72);
+    color: var(--rh-muted);
 }
 
 .rh-thread-list {
@@ -211,8 +210,8 @@ html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on
     padding: 24px 22px 26px;
     list-style: none;
     background:
-        radial-gradient(circle at 1px 1px, var(--rh-line, #e8e4da) 1px, transparent 0) 0 0 / 18px 18px,
-        var(--rh-surface-2, #faf9f5);
+        radial-gradient(circle at 1px 1px, var(--rh-line) 1px, transparent 0) 0 0 / 18px 18px,
+        var(--rh-surface-2);
 }
 
 .rh-msg {
@@ -237,15 +236,15 @@ html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--rh-surface, #fff);
-    color: var(--rh-text, #1b1c21);
-    font: 700 0.75rem/1 var(--font-family-primary, sans-serif);
-    box-shadow: 0 0 0 1px var(--rh-line-strong, #d6d1c4) inset;
+    background: var(--rh-surface);
+    color: var(--rh-text);
+    font: 700 0.75rem/1 var(--font-family-primary);
+    box-shadow: 0 0 0 1px var(--rh-line-strong) inset;
 }
 
 .rh-msg.is-staff .rh-msg-avatar {
-    background: var(--rh-ink, #131418);
-    color: var(--rh-volt, #d4ff3a);
+    background: var(--rh-ink);
+    color: var(--rh-volt);
     box-shadow: none;
 }
 
@@ -266,90 +265,57 @@ html[data-theme="dark"] .rh-ref { background: var(--rh-volt); color: var(--rh-on
     align-items: center;
     gap: 8px;
     padding: 0 4px;
-    color: var(--rh-muted, #6c6a72);
+    color: var(--rh-muted);
     font-size: 0.75rem;
 }
 
 .rh-msg-meta strong {
-    color: var(--rh-text, #1b1c21);
+    color: var(--rh-text);
     font-weight: 700;
 }
 
 .rh-msg-tag {
     padding: 3px 8px;
     border-radius: 999px;
-    background: var(--rh-surface, #fff);
-    color: var(--rh-muted, #6c6a72);
+    background: var(--rh-surface);
+    color: var(--rh-muted);
     font-size: 0.625rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    box-shadow: 0 0 0 1px var(--rh-line, #e8e4da) inset;
+    box-shadow: 0 0 0 1px var(--rh-line) inset;
 }
 
 .rh-msg-tag.is-internal {
-    background: #fff0d4;
-    color: #8a5300;
+    background: var(--st-pending-bg);
+    color: var(--st-pending-fg);
     box-shadow: none;
 }
 
 .rh-bubble {
     padding: 12px 16px;
     border-radius: 18px 18px 18px 6px;
-    background: var(--rh-surface, #fff);
-    color: var(--rh-text, #1b1c21);
+    background: var(--rh-surface);
+    color: var(--rh-text);
     font-size: 0.875rem;
     line-height: 1.6;
     overflow-wrap: anywhere;
-    box-shadow: 0 0 0 1px var(--rh-line, #e8e4da) inset, 0 6px 16px -12px rgba(19, 20, 24, 0.35);
+    box-shadow: 0 0 0 1px var(--rh-line) inset, 0 6px 16px -12px rgba(19, 20, 24, 0.35);
 }
 
 .rh-msg.is-staff .rh-bubble {
     border-radius: 18px 18px 6px 18px;
-    background: var(--rh-ink, #131418);
-    color: #f4f2ec;
+    background: var(--rh-bubble-staff-bg);
+    color: var(--rh-bubble-staff-fg);
     box-shadow: 0 10px 22px -16px rgba(19, 20, 24, 0.8);
 }
 
 .rh-msg.is-internal .rh-bubble {
-    background: repeating-linear-gradient(-45deg, #fff6e2 0 10px, #fff1d6 10px 20px);
-    color: #4a3200;
-    box-shadow: 0 0 0 1px #f4d79a inset;
+    background: repeating-linear-gradient(-45deg, var(--note-a) 0 10px, var(--note-b) 10px 20px);
+    color: var(--note-fg);
+    box-shadow: 0 0 0 1px var(--note-line) inset;
 }
 
-html[data-theme="dark"] .rh-msg.is-staff .rh-bubble {
-    background: #26282e;
-}
-
-html[data-theme="dark"] .rh-msg.is-internal .rh-bubble {
-    background: repeating-linear-gradient(-45deg, rgba(255, 181, 71, 0.14) 0 10px, rgba(255, 181, 71, 0.09) 10px 20px);
-    color: #ffe2b0;
-    box-shadow: 0 0 0 1px rgba(255, 181, 71, 0.3) inset;
-}
-
-html[data-theme="dark"] .rh-msg-tag.is-internal {
-    background: rgba(255, 181, 71, 0.16);
-    color: #ffc46b;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .rh-msg.is-staff .rh-bubble {
-        background: #26282e;
-    }
-
-    :root:not([data-theme="light"]) .rh-msg.is-internal .rh-bubble {
-        background: repeating-linear-gradient(-45deg, rgba(255, 181, 71, 0.14) 0 10px, rgba(255, 181, 71, 0.09) 10px 20px);
-        color: #ffe2b0;
-        box-shadow: 0 0 0 1px rgba(255, 181, 71, 0.3) inset;
-    }
-
-    :root:not([data-theme="light"]) .rh-msg-tag.is-internal {
-        background: rgba(255, 181, 71, 0.16);
-        color: #ffc46b;
-    }
-}
-
-a.rh-file,
 a.rh-file:link,
 a.rh-file:visited {
     display: inline-flex;
@@ -358,16 +324,15 @@ a.rh-file:visited {
     max-width: 100%;
     padding: 6px 12px 6px 6px;
     border-radius: 999px;
-    background: var(--rh-surface, #fff);
-    color: var(--rh-text, #1b1c21);
+    background: var(--rh-surface);
+    color: var(--rh-text);
     font-size: 0.75rem;
     font-weight: 700;
-    box-shadow: 0 0 0 1px var(--rh-line-strong, #d6d1c4) inset;
-    background-image: none !important;
+    box-shadow: 0 0 0 1px var(--rh-line-strong) inset;
 }
 
 a.rh-file:hover {
-    box-shadow: 0 0 0 1px var(--rh-text, #1b1c21) inset;
+    box-shadow: 0 0 0 1px var(--rh-text) inset;
 }
 
 .rh-file-icon {
@@ -376,12 +341,12 @@ a.rh-file:hover {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: var(--rh-volt, #d4ff3a);
-    color: var(--rh-on-volt, #131418);
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
     font-size: 0.75rem;
 }
 
-/* --- Reply composer (the "Add a reply" inline) ----------------------------- */
+/* --- Reply box (the "Add a reply" inline) ----------------------------------- */
 
 #comments-2-group .inline-related h3 {
     display: none;
@@ -394,10 +359,7 @@ a.rh-file:hover {
 #comments-2-group .inline-related textarea {
     width: 100%;
     min-height: 120px;
-    box-sizing: border-box;
 }
-
-/* --- Small screens --------------------------------------------------------- */
 
 @media (max-width: 767px) {
     .rh-msg {

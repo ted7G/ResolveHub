@@ -1,46 +1,50 @@
 {% extends "admin/index.html" %}
 {% load i18n log desk_tags %}
 {% comment %}
-  The dashboard: live desk numbers on top, then the admin's own app list and
-  recent actions side by side.
+  The dashboard: live desk numbers, charts of the flow and the load, recent
+  activity, then the admin's own app list.
 {% endcomment %}
 
 {% block content_title %}{% endblock %}
 
 {% block content %}
   {% desk_summary %}
+  {% desk_charts as charts %}
 
-  <div class="rh-board">
-    <div id="content-main">
-      <p class="rh-section-title">Workspace</p>
-      {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
-    </div>
+  <div class="rh-dash-grid">
+    {% if charts %}
+      {% include "admin/tickets/charts/flow.html" with flow=charts.flow %}
+      {% include "admin/tickets/charts/split_bars.html" with data=charts.priority chart_id="priority" title="Active by priority" subtitle="Open work right now, by urgency" row_heading="Priority" %}
+      {% include "admin/tickets/charts/split_bars.html" with data=charts.workload chart_id="workload" title="Team workload" subtitle="Agents with the most active tickets" row_heading="Agent" %}
+    {% endif %}
 
-    <div id="content-related">
-      <p class="rh-section-title">Your recent activity</p>
-      <div class="module" id="recent-actions-module">
-        <h2>{% translate 'Recent actions' %}</h2>
-        {% get_admin_log 8 as admin_log for_user user %}
-        {% if not admin_log %}
-          <p>Nothing yet. Changes you make in the admin show up here.</p>
-        {% else %}
-          <ul class="actionlist">
-            {% for entry in admin_log %}
-              <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
-                <span class="visually-hidden">{% if entry.is_addition %}{% translate 'Added:' %}{% elif entry.is_change %}{% translate 'Changed:' %}{% elif entry.is_deletion %}{% translate 'Deleted:' %}{% endif %}</span>
-                {% if entry.is_deletion or not entry.get_admin_url %}
-                  {{ entry.object_repr }}
-                {% else %}
-                  <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
-                {% endif %}
-                <br>
-                <span class="mini quiet">{% if entry.content_type %}{{ entry.content_type.name|capfirst }}{% else %}{% translate 'Unknown content' %}{% endif %} · {{ entry.action_time|timesince }} ago</span>
-              </li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
+    <div class="module rh-activity" id="recent-actions-module">
+      <h2>{% translate 'Recent actions' %}</h2>
+      {% get_admin_log 8 as admin_log for_user user %}
+      {% if not admin_log %}
+        <p>Nothing yet. Changes you make in the admin show up here.</p>
+      {% else %}
+        <ul class="actionlist">
+          {% for entry in admin_log %}
+            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
+              <span class="visually-hidden">{% if entry.is_addition %}{% translate 'Added:' %}{% elif entry.is_change %}{% translate 'Changed:' %}{% elif entry.is_deletion %}{% translate 'Deleted:' %}{% endif %}</span>
+              {% if entry.is_deletion or not entry.get_admin_url %}
+                {{ entry.object_repr }}
+              {% else %}
+                <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+              {% endif %}
+              <br>
+              <span class="mini quiet">{% if entry.content_type %}{{ entry.content_type.name|capfirst }}{% else %}{% translate 'Unknown content' %}{% endif %} · {{ entry.action_time|timesince }} ago</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     </div>
+  </div>
+
+  <div id="content-main">
+    <p class="rh-section-title">Workspace</p>
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
   </div>
 {% endblock %}
 

@@ -9,7 +9,9 @@ class AdminEnhancementsMixin:
     - static/resolvehub/searchable.js: long dropdowns become searchable and
       long filter lists get a search box;
     - static/resolvehub/filterbar.js: list filters move from the sidebar into
-      a row of dropdown buttons above the table, giving the table full width.
+      a row of dropdown buttons above the table, giving the table full width;
+    - static/resolvehub/listpage.js: search as you type, and a bulk-action
+      button that is only active once there is something to apply.
 
     The jQuery and Select2 file names match the ones Django's own
     autocomplete widget uses, so on pages that already have them the assets
@@ -26,6 +28,7 @@ class AdminEnhancementsMixin:
                 "admin/js/jquery.init.js",
                 "resolvehub/searchable.js",
                 "resolvehub/filterbar.js",
+                "resolvehub/listpage.js",
             ],
             css={
                 "screen": [
@@ -35,3 +38,15 @@ class AdminEnhancementsMixin:
             },
         )
         return super().media + enhancements
+
+    def get_action_choices(self, request, default_choices=None):
+        # A readable prompt instead of Django's "---------".
+        return super().get_action_choices(request, [("", "Choose an action…")])
+
+    def changelist_view(self, request, extra_context=None):
+        # "Tickets" reads better than Django's "Select ticket to change".
+        extra_context = {
+            "title": self.model._meta.verbose_name_plural.capitalize(),
+            **(extra_context or {}),
+        }
+        return super().changelist_view(request, extra_context)

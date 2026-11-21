@@ -1,0 +1,700 @@
+/*
+ * List pages (Django's changelist): search, date drill-down, bulk actions,
+ * results table, pagination and filters. filterbar.js turns the filter
+ * sidebar into dropdown buttons above the table; without it the sidebar
+ * styles below still apply.
+ */
+
+#changelist {
+    gap: 18px;
+}
+
+/* Django gives the whole wrapper the "module" class; only its parts are cards. */
+#changelist.module {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+}
+
+#changelist .changelist-form-container {
+    border: 1px solid var(--rh-line);
+    border-radius: var(--rh-radius);
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow);
+    overflow: hidden;
+}
+
+/* --- Search ---------------------------------------------------------------- */
+
+#changelist #toolbar {
+    margin: 0;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--rh-line);
+    background: transparent;
+    color: var(--rh-muted);
+}
+
+#changelist #toolbar form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+}
+
+#changelist #toolbar form > div:not(.help) {
+    display: contents;
+}
+
+#changelist #toolbar label[for="searchbar"],
+#changelist #toolbar br {
+    display: none;
+}
+
+#changelist #toolbar form input[type="text"] {
+    width: min(480px, 100%);
+    height: 44px;
+    padding-left: 44px;
+    border-radius: 999px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8790' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 17px center;
+}
+
+#changelist #toolbar form input[type="submit"] {
+    height: 44px;
+    padding: 0 20px;
+    border-radius: 999px;
+}
+
+/* listpage.js searches as you type, so the button is only a fallback. */
+#changelist-search.rh-live input[type="submit"] {
+    display: none;
+}
+
+#changelist-search.is-searching input[type="text"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8790' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M12 3a9 9 0 1 0 9 9'/%3E%3C/svg%3E");
+}
+
+#changelist #toolbar .small.quiet {
+    color: var(--rh-muted);
+    font-size: 0.8125rem;
+}
+
+#changelist #toolbar .help,
+#searchbar_helptext {
+    flex-basis: 100%;
+    order: 10;
+    margin: 0;
+    padding-left: 6px;
+}
+
+/* --- Date drill-down (Django renders a <nav> of links) --------------------- */
+
+#changelist nav.toplinks,
+#changelist .xfull {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--rh-line);
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+#changelist .toplinks a:link,
+#changelist .toplinks a:visited {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 13px;
+    border-radius: 999px;
+    background: var(--rh-surface-2);
+    color: var(--rh-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--rh-line) inset;
+    transition: background 0.15s, color 0.15s;
+}
+
+#changelist .toplinks a:hover {
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    box-shadow: none;
+}
+
+#changelist .toplinks a.date-back {
+    background: transparent;
+    color: var(--rh-muted);
+    box-shadow: none;
+}
+
+/* --- Bulk actions ---------------------------------------------------------- */
+
+#changelist .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 14px;
+    box-sizing: border-box;
+    max-width: 100%;
+    margin: 0;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--rh-line);
+    background: var(--rh-surface-2);
+    color: var(--rh-muted);
+    font-weight: 600;
+}
+
+#changelist .actions.selected {
+    background: var(--rh-volt-soft);
+}
+
+#changelist .actions label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8125rem;
+}
+
+#changelist .actions label[hidden] {
+    display: none;
+}
+
+#changelist .actions select {
+    min-width: 260px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0 36px 0 14px;
+}
+
+#changelist .actions .select2-container {
+    min-width: 220px;
+}
+
+#changelist .actions .button {
+    height: 38px;
+    padding: 0 18px;
+}
+
+#changelist .actions span.action-counter,
+#changelist .actions span.all,
+#changelist .actions span.clear,
+#changelist .actions span.question {
+    font-size: 0.8125rem;
+}
+
+/* --- Results table --------------------------------------------------------- */
+
+#result_list {
+    width: 100%;
+}
+
+#changelist table thead th .text a,
+#changelist table thead th .text span {
+    padding: 12px 10px;
+}
+
+#changelist table thead th.sorted {
+    background: var(--rh-volt-soft);
+}
+
+#changelist table thead th.sorted .text {
+    padding-right: 36px;
+}
+
+#changelist table thead th.sorted .sortoptions {
+    padding: 12px 8px 0 4px;
+}
+
+#changelist table thead th.sortable .text a:hover {
+    color: var(--rh-text);
+}
+
+#result_list thead th {
+    white-space: nowrap;
+}
+
+#result_list tbody tr {
+    transition: background 0.12s;
+}
+
+#result_list tbody tr:hover {
+    background: var(--rh-surface-2);
+}
+
+#result_list tbody tr:hover > :first-child {
+    box-shadow: 3px 0 0 var(--rh-volt) inset;
+}
+
+#result_list tbody tr.selected {
+    background: var(--rh-volt-soft);
+}
+
+#result_list td,
+#result_list th {
+    padding: 14px 10px;
+}
+
+#result_list tr > :first-child {
+    padding-left: 16px;
+}
+
+#result_list th.field-reference a,
+#result_list td.field-reference {
+    font-family: var(--font-family-monospace);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#result_list .field-subject {
+    min-width: 200px;
+    font-weight: 700;
+}
+
+#result_list .field-subject a {
+    color: var(--rh-text);
+}
+
+#result_list .field-comment_count {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+#result_list .field-created,
+#result_list td.field-created_at,
+#result_list td.field-last_login {
+    min-width: 96px;
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    white-space: normal;
+}
+
+#result_list .field-created {
+    white-space: nowrap;
+}
+
+#result_list td.field-email {
+    min-width: 170px;
+    overflow-wrap: anywhere;
+}
+
+#changelist table input[type="checkbox"] {
+    margin: 0;
+}
+
+/* --- Pagination and empty results ------------------------------------------ */
+
+#changelist .paginator {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    padding: 14px 20px;
+    border-top: 1px solid var(--rh-line);
+    background: var(--rh-surface-2);
+    color: var(--rh-muted);
+    font-size: 0.8125rem;
+    line-height: 30px;
+}
+
+.paginator a:link,
+.paginator a:visited,
+.paginator .this-page {
+    display: inline-grid;
+    place-items: center;
+    min-width: 30px;
+    height: 30px;
+    margin: 0;
+    padding: 0 6px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--rh-text);
+    font-weight: 700;
+}
+
+.paginator a:hover {
+    background: var(--rh-surface);
+    box-shadow: 0 0 0 1px var(--rh-line-strong) inset;
+}
+
+.paginator .this-page {
+    background: var(--rh-strong-bg);
+    color: var(--rh-strong-fg);
+}
+
+.paginator .end {
+    margin-right: 10px;
+}
+
+/* A search or filter that matches nothing leaves only the paginator. */
+#changelist-form > p.paginator:only-of-type,
+#changelist .changelist-form-container > p.paginator {
+    padding: 36px 20px;
+    border-top: 0;
+    background: transparent;
+    font-size: 0.9375rem;
+    text-align: center;
+}
+
+/* --- Filters: sidebar (fallback) ----------------------------------------------- */
+
+#changelist-filter {
+    flex: 0 0 232px;
+    order: 1;
+    align-self: flex-start;
+    position: sticky;
+    top: 86px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    border: 1px solid var(--rh-line);
+    border-radius: var(--rh-radius);
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow);
+}
+
+#changelist-filter h2 {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--rh-line);
+    background: transparent;
+    color: var(--rh-text);
+    font: 700 0.95rem/1.2 var(--rh-display);
+    text-transform: none;
+}
+
+#changelist-filter h2::before {
+    display: none;
+}
+
+#changelist-filter details {
+    padding-top: 16px;
+    border-bottom: 1px solid var(--rh-line);
+}
+
+#changelist-filter details summary,
+#changelist-filter h3 {
+    margin: 0;
+    padding: 0 18px 8px;
+    color: var(--rh-faint);
+    font: 700 0.6875rem/1 var(--font-family-primary);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+#changelist-filter ul {
+    margin: 0;
+    padding: 0 10px 14px;
+    border: 0;
+}
+
+#changelist-filter li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#changelist-filter li a:link,
+#changelist-filter li a:visited {
+    display: block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    color: var(--rh-muted);
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+#changelist-filter li a:hover {
+    background: var(--rh-surface-2);
+    color: var(--rh-text);
+}
+
+#changelist-filter li.selected {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+#changelist-filter li.selected a:link,
+#changelist-filter li.selected a:visited {
+    background: var(--rh-strong-bg);
+    color: var(--rh-strong-fg);
+}
+
+#changelist-filter-extra-actions {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--rh-line);
+}
+
+#changelist-filter-extra-actions h3 {
+    padding: 0;
+    color: var(--rh-text);
+    font-size: 0.8125rem;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+#changelist-filter-extra-actions a:link,
+#changelist-filter-extra-actions a:visited {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--rh-surface);
+    color: var(--rh-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--rh-line-strong) inset;
+}
+
+.rh-filter-search {
+    display: block;
+    width: calc(100% - 20px);
+    min-height: 34px;
+    margin: 0 10px 8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+}
+
+.rh-filter-empty {
+    padding: 4px 20px 12px;
+    color: var(--rh-faint);
+    font-size: 0.75rem;
+}
+
+/* --- Filters: dropdown buttons above the table ------------------------------- */
+
+#changelist.rh-has-filterbar {
+    flex-direction: column;
+    gap: 14px;
+}
+
+#changelist.rh-has-filterbar .changelist-form-container {
+    width: 100%;
+}
+
+#changelist.rh-has-filterbar #changelist-filter {
+    order: -1;
+    position: static;
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    max-height: none;
+    margin: 6px 0 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter h2 {
+    display: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details {
+    position: relative;
+    padding: 0;
+    border: 0;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--rh-surface);
+    color: var(--rh-text);
+    font: 700 0.8125rem/1 var(--font-family-primary);
+    letter-spacing: 0;
+    text-transform: none;
+    list-style: none;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px var(--rh-line-strong) inset, 0 1px 2px light-dark(rgba(19, 20, 24, 0.05), transparent);
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary::-webkit-details-marker {
+    display: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary::marker {
+    content: "";
+}
+
+/* Django marks filter titles with an arrow; the buttons have a chevron. */
+#changelist.rh-has-filterbar #changelist-filter details > summary::before {
+    content: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-left: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    opacity: 0.55;
+    transform: rotate(45deg) translateY(-2px);
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary:hover {
+    box-shadow: 0 0 0 1px var(--rh-text) inset;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details[open] > summary {
+    box-shadow: 0 0 0 1px var(--rh-text) inset, var(--rh-ring);
+}
+
+#changelist.rh-has-filterbar #changelist-filter details.is-active > summary {
+    background: var(--rh-strong-bg);
+    color: var(--rh-strong-fg);
+    box-shadow: none;
+}
+
+.rh-filter-value {
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 25;
+    width: max-content;
+    min-width: 220px;
+    max-width: min(320px, calc(100vw - 32px));
+    max-height: 340px;
+    padding: 8px;
+    overflow-y: auto;
+    border: 1px solid var(--rh-line);
+    border-radius: 14px;
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow-lift);
+    animation: rh-pop-in 0.14s ease-out;
+}
+
+#changelist.rh-has-filterbar details:not([open]) > .rh-filter-pop {
+    display: none;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop.is-flipped {
+    right: 0;
+    left: auto;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop ul {
+    padding: 0;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop .rh-filter-search {
+    width: 100%;
+    margin: 0 0 6px;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop .rh-filter-empty {
+    padding: 4px 10px 6px;
+}
+
+#changelist.rh-has-filterbar #changelist-filter-extra-actions {
+    display: flex;
+    order: 99;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+}
+
+#changelist.rh-has-filterbar #changelist-filter-extra-actions h3 {
+    margin: 0;
+}
+
+/* --- Narrower screens ---------------------------------------------------------- */
+
+/* The ticket list drops its two least important columns before it scrolls. */
+@media (max-width: 1200px) {
+    #result_list .column-comment_count,
+    #result_list .field-comment_count,
+    #result_list .column-created,
+    #result_list .field-created {
+        display: none;
+    }
+
+    #result_list td,
+    #result_list th,
+    #changelist table thead th .text a,
+    #changelist table thead th .text span {
+        padding-right: 8px;
+        padding-left: 8px;
+    }
+
+    #result_list .field-subject {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 1024px) {
+    #changelist-filter {
+        position: static;
+        max-height: none;
+    }
+}
+
+@media (max-width: 900px) {
+    #result_list .column-created_at,
+    #result_list .field-created_at,
+    #result_list .column-last_login,
+    #result_list .field-last_login {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+    #changelist#changelist .actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    #changelist#changelist .actions label {
+        display: grid;
+        grid-template-columns: 56px minmax(0, 1fr);
+        align-items: center;
+    }
+
+    #changelist#changelist .actions label[hidden] {
+        display: none;
+    }
+
+    #changelist .actions select:not(.select2-hidden-accessible),
+    #changelist .actions .select2-container {
+        width: 100% !important; /* Select2 writes an inline width */
+        min-width: 0;
+    }
+
+    #changelist .actions .button {
+        justify-self: start;
+    }
+
+    #changelist #toolbar form input[type="text"] {
+        width: 100%;
+    }
+
+    #changelist.rh-has-filterbar #changelist-filter-extra-actions {
+        margin-left: 0;
+    }
+}

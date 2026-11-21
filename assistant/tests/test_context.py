@@ -68,7 +68,7 @@ def test_view_only_users_get_field_meanings_without_editable_fields(request_as, 
 
     assert "every field is read-only" in text
     assert "Fields:" not in text
-    assert "- Priority [priority]: options: Low, Normal, High, Urgent." in text
+    assert "- Priority: options: Low, Normal, High, Urgent." in text
     assert 'Section "Add a reply"' not in text
     assert labels == {}
 
@@ -76,6 +76,6 @@ def test_view_only_users_get_field_meanings_without_editable_fields(request_as, 
 def test_customer_form_reference(request_as):
     text, _ = reference_for(request_as(AGENT), Customer)
 
-    assert "- Email [email]: email address, required" in text
+    assert "- Email: email address, required" in text
     assert "unique email" in text
     assert "Rules:" not in text  # customers have no extra rules

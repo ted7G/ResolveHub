@@ -1,0 +1,11 @@
+{% extends "admin/actions.html" %}
+{% comment %}
+  Django's bulk-action bar with a clearer button. The action still needs an
+  explicit click: it can change or delete many tickets at once.
+  static/resolvehub/listpage.js enables the button once an action and at
+  least one row are chosen, and shows the agent picker only when needed.
+{% endcomment %}
+
+{% block actions-submit %}
+  <button type="submit" class="button rh-apply" title="Run the chosen action on the selected rows" name="index" value="{{ action_index|default:0 }}">Apply</button>
+{% endblock %}

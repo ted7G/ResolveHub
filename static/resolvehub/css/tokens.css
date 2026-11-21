@@ -1,0 +1,163 @@
+/*
+ * ResolveHub admin theme: fonts and design tokens.
+ *
+ * Every colour is written once with light-dark(), so the admin's theme
+ * switch (auto, light, dark) and the system setting both just work through
+ * color-scheme. Django's own admin variables are mapped onto these tokens,
+ * which restyles the built-in admin without replacing it.
+ */
+
+@font-face {
+    font-family: "Bricolage Grotesque";
+    src: url("../fonts/bricolage-grotesque.woff2") format("woff2");
+    font-weight: 200 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Manrope";
+    src: url("../fonts/manrope.woff2") format("woff2");
+    font-weight: 200 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    src: url("../fonts/jetbrains-mono.woff2") format("woff2");
+    font-weight: 100 800;
+    font-display: swap;
+}
+
+:root {
+    color-scheme: light dark;
+}
+
+html[data-theme="light"] {
+    color-scheme: light;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+/* html[data-theme] matches Django's own theme selectors, so these win. */
+:root,
+html[data-theme] {
+    /* Surfaces and ink */
+    --rh-ink: light-dark(#131418, #0b0c0f);
+    --rh-paper: light-dark(#f4f2ec, #0f1013);
+    --rh-surface: light-dark(#ffffff, #17181c);
+    --rh-surface-2: light-dark(#faf9f5, #1c1d22);
+    --rh-surface-3: light-dark(#f1eee6, #23252b);
+    --rh-line: light-dark(#e8e4da, #26282e);
+    --rh-line-strong: light-dark(#d6d1c4, #353841);
+    --rh-text: light-dark(#1b1c21, #ecebe6);
+    --rh-muted: light-dark(#6c6a72, #a19fa8);
+    --rh-faint: light-dark(#9b98a0, #6f6d76);
+
+    /* Brand */
+    --rh-volt: #d4ff3a;
+    --rh-volt-deep: #b8e81a;
+    --rh-volt-soft: light-dark(#f2ffc9, rgba(212, 255, 58, 0.1));
+    --rh-on-volt: #131418;
+    --rh-glow: light-dark(rgba(212, 255, 58, 0.22), rgba(212, 255, 58, 0.07));
+
+    /* Feedback */
+    --rh-danger: #e5484d;
+    --rh-danger-text: light-dark(#d92d20, #ff7b72);
+    --rh-danger-soft: light-dark(#ffeceb, rgba(229, 72, 77, 0.16));
+    --rh-warn-soft: light-dark(#fff3d9, rgba(255, 184, 0, 0.13));
+    --rh-warn-text: light-dark(#8a5300, #ffc46b);
+    --rh-success-soft: light-dark(#effbd6, rgba(212, 255, 58, 0.12));
+
+    /* "Selected" items: filters, current page, ticket reference. */
+    --rh-strong-bg: light-dark(#131418, #d4ff3a);
+    --rh-strong-fg: light-dark(#ffffff, #131418);
+
+    /* Header (always dark) */
+    --rh-header-bg: #0f1013;
+    --rh-header-fg: #ffffff;
+    --rh-header-muted: rgba(255, 255, 255, 0.64);
+    --rh-header-hover: rgba(255, 255, 255, 0.09);
+
+    /* Dashboard hero card and chat bubbles */
+    --rh-hero-bg: light-dark(#131418, #23252b);
+    --rh-hero-fg: #ffffff;
+    --rh-hero-muted: rgba(255, 255, 255, 0.62);
+    --rh-hello-mark: light-dark(#d4ff3a, transparent);
+    --rh-hello-fg: light-dark(#1b1c21, #d4ff3a);
+    --rh-bubble-staff-bg: light-dark(#131418, #26282e);
+    --rh-bubble-staff-fg: light-dark(#f4f2ec, #ecebe6);
+
+    /* Links get a highlighter-pen underline on hover. */
+    --rh-mark: light-dark(#d4ff3a, rgba(212, 255, 58, 0.35));
+    --rh-check: light-dark(#131418, #d4ff3a);
+
+    /* Charts: validated palette (blue, orange, critical red). */
+    --viz-created: light-dark(#2a78d6, #3987e5);
+    --viz-resolved: light-dark(#eb6834, #d95926);
+    --viz-on-track: light-dark(#2a78d6, #3987e5);
+    --viz-overdue: #d03b3b;
+    --viz-grid: light-dark(#eeeae1, #24262c);
+    /* Status mix on the dark hero card (validated against it). */
+    --viz-new: #3987e5;
+    --viz-open: #199e70;
+    --viz-waiting: #c98500;
+
+    /* Shape and depth */
+    --rh-radius: 18px;
+    --rh-radius-sm: 11px;
+    --rh-shadow: 0 1px 0 light-dark(rgba(19, 20, 24, 0.04), rgba(255, 255, 255, 0.03)) inset,
+        0 1px 2px light-dark(rgba(19, 20, 24, 0.04), rgba(0, 0, 0, 0.3)),
+        0 14px 34px -22px light-dark(rgba(19, 20, 24, 0.28), rgba(0, 0, 0, 0.9));
+    --rh-shadow-lift: 0 1px 0 light-dark(rgba(19, 20, 24, 0.05), rgba(255, 255, 255, 0.04)) inset,
+        0 26px 50px -24px light-dark(rgba(19, 20, 24, 0.38), rgba(0, 0, 0, 0.95));
+    --rh-ring: 0 0 0 4px color-mix(in srgb, var(--rh-volt) 55%, transparent);
+
+    /* Type */
+    --rh-display: "Bricolage Grotesque", "Manrope", system-ui, sans-serif;
+    --font-family-primary: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-family-monospace: "JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+
+    /* Django admin variables, mapped onto the tokens above */
+    --primary: var(--rh-strong-bg);
+    --secondary: var(--rh-ink);
+    --accent: var(--rh-volt);
+    --primary-fg: var(--rh-strong-fg);
+    --body-fg: var(--rh-text);
+    --body-bg: var(--rh-surface);
+    --body-quiet-color: var(--rh-muted);
+    --body-medium-color: light-dark(#3b3b42, #d6d4cf);
+    --body-loud-color: light-dark(#0b0b0d, #ffffff);
+    --header-color: var(--rh-header-fg);
+    --header-branding-color: var(--rh-header-fg);
+    --header-bg: var(--rh-header-bg);
+    --header-link-color: var(--rh-header-fg);
+    --breadcrumbs-fg: var(--rh-muted);
+    --breadcrumbs-link-fg: var(--rh-text);
+    --breadcrumbs-bg: transparent;
+    --link-fg: var(--rh-text);
+    --link-hover-color: light-dark(#000000, #ffffff);
+    --link-selected-fg: var(--rh-text);
+    --hairline-color: var(--rh-line);
+    --border-color: var(--rh-line-strong);
+    --error-fg: var(--rh-danger-text);
+    --message-success-bg: var(--rh-success-soft);
+    --message-warning-bg: var(--rh-warn-soft);
+    --message-error-bg: var(--rh-danger-soft);
+    --darkened-bg: var(--rh-surface-2);
+    --selected-bg: var(--rh-surface-3);
+    --selected-row: var(--rh-volt-soft);
+    --button-fg: light-dark(#ffffff, #ecebe6);
+    --button-bg: light-dark(#131418, #2a2c33);
+    --button-hover-bg: light-dark(#26272e, #34363e);
+    --default-button-bg: var(--rh-volt);
+    --default-button-hover-bg: var(--rh-volt-deep);
+    --close-button-bg: light-dark(#8a8790, #3a3c44);
+    --close-button-hover-bg: light-dark(#5f5d64, #50525b);
+    --delete-button-bg: var(--rh-danger);
+    --delete-button-hover-bg: #c93a3f;
+    --object-tools-fg: var(--rh-on-volt);
+    --object-tools-bg: var(--rh-volt);
+    --object-tools-hover-bg: var(--rh-volt-deep);
+}

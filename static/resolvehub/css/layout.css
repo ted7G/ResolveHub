@@ -1,0 +1,388 @@
+/*
+ * Page frame: header with navigation and user menu, breadcrumbs, content
+ * width. Django's responsive.css loads after the theme, so narrow-screen
+ * rules here carry a little extra weight (#container, doubled ids).
+ */
+
+/* --- Header ---------------------------------------------------------------- */
+
+#header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    flex-shrink: 0; /* #container is a flex column; never squeeze the header */
+    min-height: 64px;
+    padding: 0 28px;
+    gap: 12px;
+    background: var(--rh-header-bg);
+    color: var(--rh-header-fg);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 -1px 0 rgba(212, 255, 58, 0.22) inset,
+        0 12px 30px -24px rgba(0, 0, 0, 0.7);
+}
+
+#branding {
+    order: 0;
+    margin-right: 20px;
+}
+
+#branding h1,
+#site-name {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+#site-name a:link,
+#site-name a:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    color: #fff;
+    background-image: none;
+}
+
+.rh-logo {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    font: 800 15px/1 var(--rh-display);
+    letter-spacing: -0.04em;
+    box-shadow: 0 0 0 3px rgba(212, 255, 58, 0.16), 0 0 22px rgba(212, 255, 58, 0.35);
+    transform: rotate(-6deg);
+    transition: transform 0.25s ease;
+}
+
+#site-name a:hover .rh-logo {
+    transform: rotate(0deg) scale(1.05);
+}
+
+.rh-logo-word span {
+    color: var(--rh-volt);
+}
+
+/* Section navigation */
+.rh-topnav {
+    order: 1;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+#header .rh-topnav a:link,
+#header .rh-topnav a:visited {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    color: var(--rh-header-muted);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    transition: color 0.15s, background 0.15s;
+}
+
+#header .rh-topnav a:hover {
+    background: var(--rh-header-hover);
+    color: #fff;
+}
+
+#header .rh-topnav a[aria-current="page"]:link,
+#header .rh-topnav a[aria-current="page"]:visited {
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+}
+
+/* User area: Ask AI, theme switch, user menu */
+#user-tools {
+    order: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 0 auto;
+    padding: 0;
+    color: var(--rh-header-muted);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-align: left;
+    text-transform: none;
+}
+
+#header .theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin: 0;
+    border-radius: 50%;
+    color: #fff;
+    vertical-align: middle;
+}
+
+#header .theme-toggle:hover {
+    background: var(--rh-header-hover);
+}
+
+#header .theme-toggle svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    color: currentColor;
+}
+
+.rh-usermenu {
+    position: relative;
+}
+
+.rh-usermenu > summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.rh-usermenu > summary::-webkit-details-marker {
+    display: none;
+}
+
+.rh-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px 4px 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    transition: background 0.15s;
+}
+
+.rh-user::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-left: 2px;
+    border-right: 2px solid rgba(255, 255, 255, 0.6);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 0.2s;
+}
+
+.rh-usermenu[open] .rh-user::after {
+    transform: rotate(225deg) translateY(-2px);
+}
+
+.rh-user:hover,
+.rh-usermenu[open] .rh-user {
+    background: rgba(255, 255, 255, 0.13);
+}
+
+.rh-avatar {
+    display: inline-grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    font: 700 0.75rem/1 var(--font-family-primary);
+}
+
+.rh-user-name {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: left;
+}
+
+.rh-user-role {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.6875rem;
+    font-weight: 500;
+}
+
+.rh-usermenu-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    min-width: 230px;
+    padding: 8px;
+    border: 1px solid var(--rh-line);
+    border-radius: 14px;
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow-lift);
+    text-align: left;
+    animation: rh-pop-in 0.14s ease-out;
+}
+
+@keyframes rh-pop-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: none; }
+}
+
+.rh-usermenu-who {
+    margin: 0 0 6px;
+    padding: 8px 10px 10px;
+    border-bottom: 1px solid var(--rh-line);
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+}
+
+.rh-usermenu-who strong {
+    color: var(--rh-text);
+}
+
+#header .rh-usermenu-panel a:link,
+#header .rh-usermenu-panel a:visited,
+#header .rh-usermenu-panel #logout-form button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--rh-text);
+    font: 600 0.8125rem/1 var(--font-family-primary);
+    letter-spacing: 0;
+    text-align: left;
+    text-transform: none;
+    cursor: pointer;
+}
+
+#header .rh-usermenu-panel a:hover,
+#header .rh-usermenu-panel #logout-form button:hover {
+    background: var(--rh-surface-2);
+}
+
+.rh-usermenu-panel #logout-form {
+    margin: 4px 0 0;
+    padding-top: 4px;
+    border-top: 1px solid var(--rh-line);
+}
+
+#header .rh-usermenu-panel #logout-form button {
+    color: var(--rh-danger-text);
+}
+
+/* --- Breadcrumbs and content column ----------------------------------------- */
+
+.main > .content,
+#main > .content {
+    box-sizing: border-box;
+    padding: 22px 36px 64px;
+}
+
+/* Content fills the window and centres past a comfortable width. */
+#content {
+    max-width: 1840px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 0;
+}
+
+/* Same column as the content: its 1840px plus the page's 36px gutters. */
+div.breadcrumbs {
+    box-sizing: border-box;
+    max-width: 1912px;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 18px 36px 0;
+    border: 0;
+    background: transparent;
+    color: var(--rh-faint);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+div.breadcrumbs a:link,
+div.breadcrumbs a:visited {
+    color: var(--rh-muted);
+}
+
+#footer {
+    padding: 0;
+}
+
+/* --- Narrower screens -------------------------------------------------------- */
+
+@media (max-width: 1200px) {
+    #header#header {
+        flex-wrap: wrap;
+        height: auto;
+        padding-top: 12px;
+        padding-bottom: 12px;
+        row-gap: 10px;
+    }
+
+    #header#header .rh-topnav {
+        order: 3;
+        flex: 1 0 100%;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 1024px) {
+    #header#header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
+    #header#header #user-tools {
+        width: auto;
+        margin: 0 0 0 auto;
+    }
+
+    #container #content {
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+    #container div.breadcrumbs {
+        padding-right: 36px;
+        padding-left: 36px;
+    }
+}
+
+@media (max-width: 767px) {
+    #header {
+        position: static;
+    }
+
+    .rh-logo-word,
+    .rh-user-role {
+        display: none;
+    }
+
+    .rh-user {
+        padding-right: 8px;
+    }
+
+    .main > .content,
+    #main > .content {
+        padding: 16px 16px 48px;
+    }
+
+    #container div.breadcrumbs {
+        padding-top: 16px;
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+}

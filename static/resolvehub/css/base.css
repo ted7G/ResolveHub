@@ -1,0 +1,542 @@
+/*
+ * Base elements: page, type, links, buttons, form controls, cards, tables,
+ * messages. Component rules target the admin's existing markup.
+ */
+
+/* --- Page and type --------------------------------------------------------- */
+
+html,
+body {
+    background:
+        radial-gradient(1100px 520px at 100% -8%, var(--rh-glow), transparent 62%) fixed,
+        var(--rh-paper);
+}
+
+body {
+    font-family: var(--font-family-primary);
+    font-size: 0.875rem;
+    color: var(--rh-text);
+    -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+}
+
+h1,
+h2,
+h3,
+#site-name {
+    font-family: var(--rh-display);
+    letter-spacing: -0.02em;
+}
+
+#content h1 {
+    margin: 0 0 6px;
+    color: var(--rh-text);
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+#content > h2 {
+    margin: 0 0 22px;
+    color: var(--rh-muted);
+    font-size: 1.05rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+code,
+pre,
+kbd {
+    font-family: var(--font-family-monospace);
+}
+
+:focus-visible {
+    outline: 2px solid var(--rh-volt-deep);
+    outline-offset: 2px;
+}
+
+.help,
+p.help,
+div.help,
+form .aligned div.help,
+form .aligned p.help {
+    margin-top: 6px;
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+/* --- Links ----------------------------------------------------------------- */
+
+a:link,
+a:visited {
+    color: var(--link-fg);
+    text-decoration: none;
+    transition: color 0.15s, background-size 0.2s;
+}
+
+/* Text links in content get a highlighter-pen hover: the house signature. */
+#content a:not([class]),
+#content .breadcrumbs a,
+div.breadcrumbs a {
+    background-image: linear-gradient(var(--rh-mark), var(--rh-mark));
+    background-repeat: no-repeat;
+    background-position: 0 92%;
+    background-size: 0 38%;
+}
+
+#content a:not([class]):hover,
+div.breadcrumbs a:hover {
+    background-size: 100% 38%;
+    color: var(--rh-text);
+}
+
+#content p a,
+#content .help a,
+.errornote a {
+    text-decoration: underline;
+    text-decoration-color: var(--rh-line-strong);
+    text-underline-offset: 3px;
+}
+
+/* --- Buttons --------------------------------------------------------------- */
+
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input,
+a.button,
+button.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: var(--rh-radius-sm);
+    background: var(--button-bg);
+    color: var(--button-fg);
+    font: 700 0.8125rem/1 var(--font-family-primary);
+    letter-spacing: 0;
+    text-transform: none;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.button:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.submit-row input:hover,
+a.button:hover,
+button.button:hover {
+    background: var(--button-hover-bg);
+    color: var(--button-fg);
+}
+
+.button:active,
+input[type="submit"]:active,
+.submit-row input:active {
+    transform: translateY(1px);
+}
+
+.button.default,
+input[type="submit"].default,
+.submit-row input.default,
+button.button.default {
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    text-transform: none; /* Django's forms.css uppercases the default button */
+    box-shadow: 0 0 0 1px rgba(19, 20, 24, 0.08) inset, 0 10px 20px -12px rgba(140, 180, 0, 0.95);
+}
+
+.button.default:hover,
+input[type="submit"].default:hover,
+.submit-row input.default:hover,
+button.button.default:hover {
+    background: var(--rh-volt-deep);
+    color: var(--rh-on-volt);
+}
+
+.button:disabled,
+button.button:disabled,
+input[type="submit"]:disabled {
+    background: var(--rh-surface-3);
+    color: var(--rh-faint);
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* --- Form controls --------------------------------------------------------- */
+
+input,
+select,
+textarea,
+button {
+    box-sizing: border-box;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+input[type="search"],
+textarea,
+select,
+.vTextField {
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 1px solid var(--rh-line-strong);
+    border-radius: var(--rh-radius-sm);
+    background-color: var(--rh-surface);
+    color: var(--rh-text);
+    font: 500 0.875rem/1.4 var(--font-family-primary);
+    box-shadow: 0 1px 0 light-dark(rgba(19, 20, 24, 0.03), transparent);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+    border-color: light-dark(#bdb7a8, #4a4d57);
+}
+
+textarea {
+    line-height: 1.55;
+}
+
+select {
+    height: 38px;
+    padding-right: 34px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8790' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+select[multiple] {
+    height: auto;
+    padding-right: 12px;
+    background-image: none;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.vTextField:focus {
+    border-color: var(--rh-text);
+    outline: none;
+    box-shadow: var(--rh-ring);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--rh-faint);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--rh-check);
+    vertical-align: middle;
+}
+
+input[type="file"] {
+    color: var(--rh-muted);
+    font: inherit;
+}
+
+input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 14px;
+    border: 1px dashed var(--rh-line-strong);
+    border-radius: var(--rh-radius-sm);
+    background: var(--rh-surface-2);
+    color: var(--rh-text);
+    font: 700 0.8125rem/1 var(--font-family-primary);
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+    border-color: var(--rh-text);
+}
+
+/* The admin's related-object icons (pencil, plus, cross, eye) stay quiet. */
+a.related-widget-wrapper-link:link,
+a.related-widget-wrapper-link:visited {
+    filter: grayscale(1);
+    opacity: 0.45;
+    transition: opacity 0.15s;
+}
+
+a.related-widget-wrapper-link:hover,
+a.related-widget-wrapper-link:focus {
+    filter: none;
+    opacity: 1;
+}
+
+/* Searchable selects use the Select2 copy bundled with the admin. Form media
+   loads its stylesheet after the theme, hence the extra weight. */
+html body .select2-container--admin-autocomplete .select2-selection--single,
+html body .select2-container--admin-autocomplete .select2-selection--multiple {
+    min-height: 38px;
+    border: 1px solid var(--rh-line-strong);
+    border-radius: var(--rh-radius-sm);
+    background: var(--rh-surface);
+}
+
+html body .select2-container--admin-autocomplete .select2-selection--single .select2-selection__rendered {
+    padding: 0 34px 0 12px;
+    color: var(--rh-text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 36px;
+}
+
+html body .select2-container--admin-autocomplete .select2-selection--single .select2-selection__arrow {
+    top: 0;
+    right: 8px;
+    height: 36px;
+}
+
+html body .select2-container--admin-autocomplete.select2-container--focus .select2-selection,
+html body .select2-container--admin-autocomplete.select2-container--open .select2-selection {
+    border-color: var(--rh-text);
+    box-shadow: var(--rh-ring);
+}
+
+html body .select2-container--admin-autocomplete .select2-selection--multiple .select2-selection__choice {
+    margin-top: 6px;
+    padding: 2px 8px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--rh-volt-soft);
+    color: var(--rh-text);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+html body .select2-dropdown {
+    overflow: hidden;
+    border: 1px solid var(--rh-line-strong);
+    border-radius: 12px;
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow-lift);
+}
+
+html body .select2-container--admin-autocomplete .select2-search--dropdown .select2-search__field {
+    min-height: 34px;
+    border-radius: 8px;
+}
+
+html body .select2-container--admin-autocomplete .select2-results__option {
+    padding: 8px 12px;
+    color: var(--rh-text);
+    font-size: 0.8125rem;
+}
+
+html body .select2-container--admin-autocomplete .select2-results__option--highlighted[aria-selected] {
+    background: var(--rh-strong-bg);
+    color: var(--rh-strong-fg);
+}
+
+html body .select2-container--admin-autocomplete .select2-results__option[aria-selected="true"] {
+    background: var(--rh-volt-soft);
+    color: var(--rh-text);
+}
+
+/* --- Cards ----------------------------------------------------------------- */
+
+.module {
+    background: var(--rh-surface);
+}
+
+#content .module,
+.inline-group,
+fieldset.module {
+    border: 1px solid var(--rh-line);
+    border-radius: var(--rh-radius);
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow);
+    overflow: hidden;
+}
+
+.module h2,
+.module caption,
+.inline-group h2,
+fieldset .fieldset-heading,
+fieldset .inline-heading,
+:not(.inline-related) .collapse summary {
+    margin: 0;
+    padding: 16px 20px;
+    border: 0;
+    border-bottom: 1px solid var(--rh-line);
+    background: transparent;
+    color: var(--rh-text);
+    font: 700 0.95rem/1.2 var(--rh-display);
+    letter-spacing: -0.01em;
+    text-align: left;
+    text-transform: none;
+}
+
+/* A small lime diamond marks every card heading. */
+.module h2::before,
+.module caption::before,
+.inline-group h2::before,
+fieldset .fieldset-heading::before,
+fieldset .inline-heading::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-right: 10px;
+    border-radius: 2px;
+    background: var(--rh-volt);
+    box-shadow: 0 0 0 1px rgba(19, 20, 24, 0.12);
+    transform: rotate(45deg) translateY(-2px);
+}
+
+.module caption a,
+.module h2 a,
+.module caption a.section:link,
+.module caption a.section:visited {
+    color: var(--rh-text);
+}
+
+#content .module > p {
+    margin: 0;
+    padding: 16px 20px;
+}
+
+/* --- Tables ---------------------------------------------------------------- */
+
+table {
+    border-color: var(--rh-line);
+}
+
+thead th,
+tfoot td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--rh-line);
+    background: var(--rh-surface-2);
+    color: var(--rh-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+thead th a:link,
+thead th a:visited {
+    color: var(--rh-muted);
+}
+
+td,
+th {
+    padding: 12px;
+    border-bottom: 1px solid var(--rh-line);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    vertical-align: middle;
+}
+
+tr:last-child > td,
+tr:last-child > th {
+    border-bottom: 0;
+}
+
+/* --- Messages and errors --------------------------------------------------- */
+
+ul.messagelist {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 20px;
+    padding: 0;
+}
+
+ul.messagelist li {
+    position: relative;
+    margin: 0;
+    padding: 13px 18px 13px 48px;
+    border: 1px solid var(--rh-line);
+    border-radius: 14px;
+    background: var(--rh-surface);
+    background-image: none;
+    color: var(--rh-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    box-shadow: var(--rh-shadow);
+}
+
+ul.messagelist li::before {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-top: -11px;
+    border-radius: 50%;
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+ul.messagelist li.warning::before {
+    content: "!";
+    background: #f5b324;
+}
+
+ul.messagelist li.error::before {
+    content: "!";
+    background: var(--rh-danger);
+    color: #fff;
+}
+
+.errornote {
+    margin: 0 0 18px;
+    padding: 12px 16px;
+    border: 0;
+    border-radius: var(--rh-radius-sm);
+    background: var(--rh-danger-soft);
+    color: var(--rh-danger-text);
+    font-weight: 600;
+}
+
+ul.errorlist {
+    margin: 0 0 6px;
+    color: var(--rh-danger-text);
+    font-weight: 600;
+}
+
+ul.errorlist li {
+    font-size: 0.8125rem;
+}
+
+.errors input,
+.errors select,
+.errors textarea {
+    border-color: var(--rh-danger-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

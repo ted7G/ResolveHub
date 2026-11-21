@@ -5,7 +5,7 @@ from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils import timezone
 
-from tickets import rules
+from tickets import dashboard, rules
 from tickets.models import Ticket
 from tickets.rules import Status
 
@@ -107,3 +107,17 @@ def desk_summary(context):
         },
     )
     return summary
+
+
+@register.simple_tag(takes_context=True)
+def desk_charts(context):
+    """Chart data for the dashboard, or None for people who can't see tickets."""
+    user = context["request"].user
+    if not user.has_perm("tickets.view_ticket"):
+        return None
+    now = timezone.now()
+    return {
+        "flow": dashboard.ticket_flow(),
+        "priority": dashboard.priority_load(now),
+        "workload": dashboard.agent_workload(now),
+    }

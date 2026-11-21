@@ -1,0 +1,52 @@
+{% comment %}
+  Horizontal bars split into on-track and overdue tickets. Each row links to
+  the ticket list filtered to match; the total sits at the bar's tip, and the
+  table below repeats every value.
+{% endcomment %}
+<article class="rh-chart" aria-labelledby="{{ chart_id }}-title">
+  <header class="rh-chart-head">
+    <div>
+      <h2 id="{{ chart_id }}-title">{{ title }}</h2>
+      <p>{{ subtitle }}</p>
+    </div>
+    <ul class="rh-legend">
+      <li><span class="rh-key rh-key-box is-on-track" aria-hidden="true"></span>On track</li>
+      <li><span class="rh-key rh-key-box is-overdue" aria-hidden="true"></span>Overdue</li>
+    </ul>
+  </header>
+
+  {% if data.rows %}
+    <div class="rh-bars">
+      {% for row in data.rows %}
+        <a class="rh-bar-row" href="{{ row.url }}" data-tip
+           aria-label="{{ row.label }}: {{ row.active }} active, {{ row.overdue }} overdue. Open the list.">
+          <span class="rh-bar-label">{{ row.label }}</span>
+          <span class="rh-bar-track">
+            {% if row.on_track %}<span class="rh-bar is-on-track" style="width: {{ row.on_track_width|stringformat:'.2f' }}%"></span>{% endif %}
+            {% if row.overdue %}<span class="rh-bar is-overdue" style="width: {{ row.overdue_width|stringformat:'.2f' }}%"></span>{% endif %}
+            <span class="rh-bar-value">{{ row.active }}</span>
+          </span>
+          <span class="rh-tip-src" hidden>
+            <span class="rh-tip-title">{{ row.label }}</span>
+            <span class="rh-tip-row"><span class="rh-key rh-key-box is-on-track"></span><strong>{{ row.on_track }}</strong> on track</span>
+            <span class="rh-tip-row"><span class="rh-key rh-key-box is-overdue"></span><strong>{{ row.overdue }}</strong> overdue</span>
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="rh-chart-empty">Nothing active right now.</p>
+  {% endif %}
+
+  <details class="rh-chart-table">
+    <summary>Show as table</summary>
+    <table>
+      <thead><tr><th scope="col">{{ row_heading }}</th><th scope="col">Active</th><th scope="col">On track</th><th scope="col">Overdue</th></tr></thead>
+      <tbody>
+        {% for row in data.rows %}
+          <tr><th scope="row">{{ row.label }}</th><td>{{ row.active }}</td><td>{{ row.on_track }}</td><td>{{ row.overdue }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </details>
+</article>

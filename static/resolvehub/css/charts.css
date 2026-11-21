@@ -1,0 +1,386 @@
+/*
+ * Dashboard charts. Thin marks, hairline grid, 2px surface gaps and rings,
+ * values in text colours (never the series colour), a legend for every
+ * multi-series chart and a table view under each one. Palette: tokens.css.
+ */
+
+.rh-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: 18px 20px 14px;
+    border: 1px solid var(--rh-line);
+    border-radius: var(--rh-radius);
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow);
+}
+
+.rh-chart-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px 18px;
+}
+
+#content .rh-chart-head h2 {
+    margin: 0 0 4px;
+    padding: 0;
+    border: 0;
+    color: var(--rh-text);
+    font: 700 1rem/1.2 var(--rh-display);
+}
+
+.rh-chart-head p {
+    margin: 0;
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+}
+
+.rh-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin: 0;
+    padding: 0;
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    list-style: none;
+}
+
+.rh-legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0;
+    list-style: none;
+}
+
+.rh-legend strong {
+    color: var(--rh-text);
+    font-weight: 700;
+}
+
+/* Keys: a short line for lines, a small box for bars. */
+.rh-key {
+    display: inline-block;
+    flex: none;
+}
+
+.rh-key-line {
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+}
+
+.rh-key-box {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}
+
+.rh-key.is-created { background: var(--viz-created); }
+.rh-key.is-resolved { background: var(--viz-resolved); }
+.rh-key.is-on-track { background: var(--viz-on-track); }
+.rh-key.is-overdue { background: var(--viz-overdue); }
+
+/* --- Ticket flow (lines) ------------------------------------------------------- */
+
+.rh-flow {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    grid-template-rows: 190px auto;
+    column-gap: 10px;
+}
+
+.rh-flow-y {
+    position: relative;
+    color: var(--rh-faint);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.rh-flow-y span {
+    position: absolute;
+    right: 0;
+    transform: translateY(50%);
+}
+
+.rh-flow-plot {
+    position: relative;
+    margin-right: 8px;
+}
+
+.rh-grid {
+    position: absolute;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: var(--viz-grid);
+}
+
+.rh-flow-plot svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.rh-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+
+.rh-line.is-created { stroke: var(--viz-created); }
+.rh-line.is-resolved { stroke: var(--viz-resolved); }
+
+.rh-area.is-created {
+    fill: var(--viz-created);
+    opacity: 0.1;
+}
+
+.rh-dot {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--rh-surface);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.rh-dot.is-created { background: var(--viz-created); }
+.rh-dot.is-resolved { background: var(--viz-resolved); }
+
+/* Per-day hover target: the crosshair and both points appear together. */
+.rh-flow-col {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    transform: translateX(-50%);
+    outline: none;
+    cursor: crosshair;
+}
+
+.rh-flow-col::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--rh-line-strong);
+    opacity: 0;
+}
+
+.rh-flow-col .rh-dot {
+    left: 50%;
+    opacity: 0;
+}
+
+.rh-flow-col:hover::before,
+.rh-flow-col:focus-visible::before,
+.rh-flow-col:hover .rh-dot,
+.rh-flow-col:focus-visible .rh-dot {
+    opacity: 1;
+}
+
+.rh-flow-x {
+    position: relative;
+    grid-column: 2;
+    height: 22px;
+    margin-right: 8px;
+    color: var(--rh-faint);
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.rh-flow-x span {
+    position: absolute;
+    top: 8px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.rh-flow-x span:last-child {
+    transform: translateX(-100%);
+}
+
+/* --- On-track / overdue bars ---------------------------------------------------- */
+
+.rh-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+a.rh-bar-row:link,
+a.rh-bar-row:visited {
+    display: grid;
+    grid-template-columns: minmax(84px, 128px) minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    padding: 7px 8px;
+    border-radius: 10px;
+    color: var(--rh-text);
+    transition: background 0.15s;
+}
+
+a.rh-bar-row:hover,
+a.rh-bar-row:focus-visible {
+    background: var(--rh-surface-2);
+}
+
+.rh-bar-label {
+    overflow: hidden;
+    color: var(--rh-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rh-bar-track {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+}
+
+.rh-bar {
+    display: block;
+    flex: none;
+    height: 14px;
+}
+
+.rh-bar.is-on-track { background: var(--viz-on-track); }
+.rh-bar.is-overdue { background: var(--viz-overdue); }
+
+/* Square at the baseline, 4px rounded at the data end. */
+.rh-bar:not(:has(+ .rh-bar)) {
+    border-radius: 0 4px 4px 0;
+}
+
+a.rh-bar-row:hover .rh-bar {
+    filter: brightness(1.08);
+}
+
+.rh-bar-value {
+    margin-left: 8px;
+    color: var(--rh-text);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.rh-chart-empty {
+    margin: 0;
+    padding: 24px 0;
+    color: var(--rh-muted);
+    text-align: center;
+}
+
+/* --- Tooltip (static/resolvehub/dashboard.js) ------------------------------------ */
+
+.rh-tip {
+    position: fixed;
+    z-index: 50;
+    display: grid;
+    gap: 6px;
+    min-width: 150px;
+    padding: 10px 12px;
+    border: 1px solid var(--rh-line);
+    border-radius: 12px;
+    background: var(--rh-surface);
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    box-shadow: var(--rh-shadow-lift);
+    pointer-events: none;
+}
+
+.rh-tip[hidden] {
+    display: none;
+}
+
+.rh-tip-title {
+    color: var(--rh-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.rh-tip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rh-tip-row strong {
+    color: var(--rh-text);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- Table view -------------------------------------------------------------- */
+
+.rh-chart-table {
+    margin-top: auto;
+    border-top: 1px solid var(--rh-line);
+}
+
+.rh-chart-table summary {
+    display: inline-block;
+    padding: 10px 0 2px;
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.rh-chart-table summary:hover {
+    color: var(--rh-text);
+}
+
+.rh-chart-table table {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.rh-chart-table td,
+.rh-chart-table th {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.rh-chart-table tbody th {
+    font-weight: 600;
+    text-align: left;
+}
+
+@media (max-width: 767px) {
+    .rh-chart {
+        padding: 16px 14px 12px;
+    }
+
+    .rh-flow {
+        grid-template-rows: 160px auto;
+    }
+
+    .rh-flow-x .is-wide-only {
+        display: none;
+    }
+
+    a.rh-bar-row:link,
+    a.rh-bar-row:visited {
+        grid-template-columns: 90px minmax(0, 1fr);
+    }
+}

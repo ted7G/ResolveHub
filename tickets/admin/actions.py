@@ -23,7 +23,7 @@ class TicketActionForm(ActionForm):
     """Adds an agent picker next to the action dropdown for bulk assignment."""
 
     agent = forms.ModelChoiceField(
-        queryset=Agent.objects.none(), required=False, label="Agent", empty_label="(agent)"
+        queryset=Agent.objects.none(), required=False, label="Agent", empty_label="Choose an agent…"
     )
 
     def __init__(self, *args, **kwargs):

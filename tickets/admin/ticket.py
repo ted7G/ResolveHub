@@ -3,8 +3,10 @@ import re
 from django.contrib import admin
 from django.db.models import Count, Q
 
+from tickets import rules
 from tickets.models import Agent, Ticket
 from tickets.permissions import can_edit_ticket, readonly_reason
+from tickets.rules import Status
 
 from . import actions, display
 from .enhancements import AdminEnhancementsMixin
@@ -140,6 +142,37 @@ class TicketAdmin(AdminEnhancementsMixin, admin.ModelAdmin):
             if not self.has_change_permission(request, obj):
                 context["readonly_reason"] = readonly_reason(request.user, obj)
         return super().render_change_form(request, context, add, change, form_url, obj)
+
+    def assistant_notes(self, request, obj):
+        """Ticket-specific limits for the form assistant (see assistant.context)."""
+        user = request.user
+        notes = []
+        if obj is not None:
+            current = Status(obj._loaded_status)
+            following = [Status(s).label for s in rules.allowed_next_statuses(current)]
+            notes.append(
+                f"This ticket is currently {current.label}. "
+                + (
+                    f"From here its status can change to: {', '.join(following)}."
+                    if following
+                    else "Closed is final, so its status can't change any more."
+                )
+            )
+        if obj is not None and not self.has_change_permission(request, obj):
+            notes.append(f"Why: {readonly_reason(user, obj)}")
+        if user.has_perm("tickets.change_ticket") and not self.has_manage_all_permission(request):
+            notes.append(
+                "They can assign tickets only to themselves (or leave them unassigned); "
+                "giving a ticket to a colleague is done by a support admin."
+            )
+        if not user.has_perm("tickets.view_internal_note"):
+            notes.append("They can't see or write internal notes.")
+        if obj is None and hasattr(user, "agent_profile"):
+            notes.append(
+                'Their own tickets ("my tickets") are the Assignment filter set to '
+                "Assigned to me; combine it with other filters, e.g. Deadline set to Overdue."
+            )
+        return notes
 
     def get_search_results(self, request, queryset, search_term):
         matches, may_have_duplicates = super().get_search_results(request, queryset, search_term)

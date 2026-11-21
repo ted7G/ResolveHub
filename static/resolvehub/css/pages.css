@@ -1,0 +1,817 @@
+/*
+ * Whole pages: the dashboard, sign-in, single-message cards (lockout and the
+ * GitHub pages) and the 404/500 pages.
+ */
+
+/* --- Dashboard ------------------------------------------------------------- */
+
+.dashboard #content {
+    width: auto;
+}
+
+.dashboard #content-main {
+    float: none;
+    width: auto;
+}
+
+.dashboard .colMS {
+    margin-right: 0;
+}
+
+.rh-hello {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 6px 0 24px;
+}
+
+#content .rh-hello h1 {
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    letter-spacing: -0.035em;
+}
+
+.rh-hello h1 em {
+    padding: 0 2px;
+    background: linear-gradient(transparent 62%, var(--rh-hello-mark) 62%);
+    color: var(--rh-hello-fg);
+    font-style: normal;
+}
+
+.rh-hello p {
+    margin: 0;
+    color: var(--rh-muted);
+    font-size: 0.9375rem;
+}
+
+.rh-today {
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--rh-surface);
+    color: var(--rh-muted);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    box-shadow: 0 0 0 1px var(--rh-line) inset;
+}
+
+.rh-section-title {
+    margin: 0 0 12px;
+    color: var(--rh-faint);
+    font: 700 0.6875rem/1 var(--font-family-primary);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+/* Stat tiles */
+.rh-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin: 0 0 22px;
+}
+
+a.rh-stat:link,
+a.rh-stat:visited {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 128px;
+    padding: 18px 20px;
+    overflow: hidden;
+    border: 1px solid var(--rh-line);
+    border-radius: var(--rh-radius);
+    background: var(--rh-surface);
+    color: var(--rh-text);
+    box-shadow: var(--rh-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+a.rh-stat:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--rh-shadow-lift);
+}
+
+a.rh-stat::after {
+    content: "→";
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    color: var(--rh-faint);
+    font-size: 1.1rem;
+    transition: transform 0.2s ease, color 0.2s;
+}
+
+a.rh-stat:hover::after {
+    color: var(--rh-text);
+    transform: translateX(3px);
+}
+
+.rh-stat-label {
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.rh-stat-value {
+    font: 700 2.6rem/1 var(--font-family-primary);
+    letter-spacing: -0.04em;
+}
+
+.rh-stat-note {
+    margin-top: auto;
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+a.rh-stat.is-hero:link,
+a.rh-stat.is-hero:visited {
+    border-color: transparent;
+    background:
+        radial-gradient(260px 160px at 100% 0%, rgba(212, 255, 58, 0.18), transparent 70%),
+        var(--rh-hero-bg);
+    color: var(--rh-hero-fg);
+}
+
+a.rh-stat.is-hero .rh-stat-label,
+a.rh-stat.is-hero .rh-mix-legend {
+    color: var(--rh-hero-muted);
+}
+
+a.rh-stat.is-hero::after {
+    color: var(--rh-volt);
+}
+
+a.rh-stat.is-alert .rh-stat-value {
+    color: var(--rh-danger-text);
+}
+
+a.rh-stat.is-alert::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--rh-danger);
+}
+
+/* Thin segmented bar on the hero tile: new, open, waiting. */
+.rh-mix {
+    display: flex;
+    gap: 2px;
+    height: 8px;
+    margin-top: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+}
+
+.rh-mix span {
+    display: block;
+    height: 100%;
+}
+
+.mix-new { background: var(--viz-new); }
+.mix-open { background: var(--viz-open); }
+.mix-pending { background: var(--viz-waiting); }
+
+.rh-mix-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.rh-mix-legend i {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 5px;
+    border-radius: 50%;
+}
+
+/* Charts and activity grid */
+.rh-dash-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0 0 28px;
+}
+
+.rh-dash-grid > .rh-chart-wide,
+.rh-dash-grid > .rh-chart:nth-of-type(3) {
+    grid-column: span 2;
+}
+
+#content .rh-activity {
+    margin: 0;
+}
+
+ul.actionlist {
+    margin: 0;
+    padding: 10px 20px 16px;
+    list-style: none;
+}
+
+ul.actionlist li {
+    position: relative;
+    margin: 0;
+    padding: 9px 0 9px 22px;
+    overflow: hidden;
+    border-left: 0;
+    background-image: none;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    list-style: none;
+    text-overflow: ellipsis;
+}
+
+ul.actionlist li::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--rh-line-strong);
+}
+
+ul.actionlist li::after {
+    content: "";
+    position: absolute;
+    top: 27px;
+    bottom: -9px;
+    left: 5px;
+    width: 2px;
+    background: var(--rh-line);
+}
+
+ul.actionlist li:last-child::after {
+    display: none;
+}
+
+ul.actionlist li.addlink::before { background: var(--rh-volt-deep); }
+ul.actionlist li.changelink::before { background: var(--viz-created); }
+ul.actionlist li.deletelink::before { background: var(--rh-danger); }
+
+ul.actionlist .mini {
+    color: var(--rh-faint);
+    font-weight: 600;
+}
+
+/* The admin's own app list, as compact cards. */
+.dashboard .app-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 16px;
+}
+
+.dashboard .app-list .module {
+    margin: 0;
+}
+
+.dashboard .module table {
+    width: 100%;
+}
+
+.dashboard .module tr {
+    background: transparent;
+}
+
+.dashboard .module th {
+    width: 100%;
+}
+
+.dashboard .module th a {
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.dashboard .module td {
+    white-space: nowrap;
+}
+
+.dashboard .module td a.addlink,
+.dashboard .module td a.changelink,
+.dashboard .module td a.viewlink {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--rh-surface-2);
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-image: none;
+    box-shadow: 0 0 0 1px var(--rh-line) inset;
+}
+
+.dashboard .module td a.addlink:hover,
+.dashboard .module td a.changelink:hover,
+.dashboard .module td a.viewlink:hover {
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    box-shadow: none;
+}
+
+@media (max-width: 1100px) {
+    .rh-dash-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rh-dash-grid > .rh-chart-wide,
+    .rh-dash-grid > .rh-chart:nth-of-type(3) {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    .rh-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    a.rh-stat.is-hero {
+        grid-column: 1 / -1;
+    }
+
+    a.rh-stat:link,
+    a.rh-stat:visited {
+        min-height: 110px;
+        padding: 14px 16px;
+    }
+
+    .rh-stat-value {
+        font-size: 2rem;
+    }
+
+    .rh-stat-note {
+        display: none;
+    }
+
+    .dashboard .module th,
+    .dashboard .module td {
+        padding: 10px 8px;
+    }
+
+    .dashboard .module td a.addlink,
+    .dashboard .module td a.changelink,
+    .dashboard .module td a.viewlink {
+        padding: 0 8px;
+    }
+}
+
+/* --- Sign-in --------------------------------------------------------------- */
+
+body.login {
+    min-height: 100vh;
+}
+
+body.login #container {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    margin: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* The two panels sit straight in the page grid. */
+body.login #header,
+body.login #footer,
+body.login br.clear {
+    display: none;
+}
+
+body.login .main,
+body.login #main,
+body.login main.content,
+body.login #content {
+    display: contents;
+}
+
+.rh-login-brand {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 44px 56px;
+    overflow: hidden;
+    background: #0b0c0f;
+    color: #fff;
+    isolation: isolate;
+}
+
+.rh-login-brand::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse at 30% 40%, #000 20%, transparent 75%);
+}
+
+.rh-login-brand::after {
+    content: "";
+    position: absolute;
+    right: -140px;
+    bottom: -160px;
+    z-index: -1;
+    width: 460px;
+    height: 460px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 255, 58, 0.55), rgba(212, 255, 58, 0) 65%);
+    filter: blur(10px);
+}
+
+.rh-login-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font: 700 1.2rem/1 var(--rh-display);
+    letter-spacing: -0.02em;
+}
+
+.rh-login-pitch .rh-login-headline {
+    max-width: 12ch;
+    margin: 0 0 18px;
+    color: #fff;
+    font: 700 clamp(2.4rem, 4.4vw, 4rem)/0.98 var(--rh-display);
+    letter-spacing: -0.045em;
+}
+
+.rh-login-pitch .rh-login-headline em {
+    color: var(--rh-volt);
+    font-style: normal;
+}
+
+.rh-login-pitch p {
+    max-width: 40ch;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.66);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.rh-login-stack {
+    position: relative;
+    width: min(420px, 100%);
+    height: 210px;
+    margin: 34px 0 0;
+}
+
+.rh-ticket-card {
+    position: absolute;
+    right: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-size: 0.8125rem;
+    backdrop-filter: blur(6px);
+    animation: rh-float 7s ease-in-out infinite;
+}
+
+.rh-ticket-card:nth-child(1) { top: 0; transform: rotate(-2deg); }
+.rh-ticket-card:nth-child(2) { top: 70px; right: -28px; left: 28px; animation-delay: -2.3s; }
+.rh-ticket-card:nth-child(3) { top: 140px; right: -8px; left: 8px; transform: rotate(1.5deg); animation-delay: -4.6s; }
+
+.rh-ticket-card code {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.6875rem;
+}
+
+.rh-ticket-card strong {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@keyframes rh-float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -6px; }
+}
+
+.rh-login-foot {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+}
+
+.rh-login-panel {
+    display: grid;
+    place-items: center;
+    padding: 40px 24px;
+}
+
+.rh-login-card {
+    width: min(400px, 100%);
+}
+
+.rh-login-card h1 {
+    margin: 0 0 8px;
+    color: var(--rh-text);
+    font: 700 2rem/1.1 var(--rh-display);
+    letter-spacing: -0.03em;
+}
+
+.rh-login-card > p.rh-login-sub {
+    margin: 0 0 28px;
+    color: var(--rh-muted);
+    font-size: 0.9375rem;
+}
+
+/* Django floats this block; the divider and GitHub button must follow it. */
+body.login #content-main {
+    float: none;
+    width: 100%;
+}
+
+body.login .form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 0 16px;
+    border: 0;
+}
+
+body.login .form-row label {
+    padding: 0;
+    color: var(--rh-text);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+body.login .form-row input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: 0.9375rem;
+}
+
+html body.login #content .submit-row {
+    position: static;
+    display: block;
+    margin: 8px 0 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+
+html body.login #content .submit-row input[type="submit"] {
+    width: 100%;
+    height: 50px;
+    padding: 0;
+    border-radius: 12px;
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    font-size: 0.9375rem;
+    text-transform: none;
+    box-shadow: 0 0 0 1px rgba(19, 20, 24, 0.08) inset, 0 14px 26px -14px rgba(140, 180, 0, 0.95);
+}
+
+html body.login #content .submit-row input[type="submit"]:hover {
+    background: var(--rh-volt-deep);
+}
+
+.rh-divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 24px 0;
+    color: var(--rh-faint);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.rh-divider::before,
+.rh-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rh-line);
+}
+
+.rh-oauth form {
+    margin: 0;
+}
+
+.rh-github-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 50px;
+    border: 1px solid var(--rh-line-strong);
+    border-radius: 12px;
+    background: var(--rh-surface);
+    color: var(--rh-text);
+    font: 700 0.9375rem/1 var(--font-family-primary);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.rh-github-button:hover {
+    border-color: var(--rh-text);
+    background: var(--rh-surface-2);
+}
+
+.rh-github-button svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.rh-oauth .help {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.rh-login-note {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rh-line);
+    color: var(--rh-faint);
+    font-size: 0.75rem;
+    line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+    html body.login {
+        padding: 0;
+    }
+
+    html body.login #container {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+    }
+}
+
+@media (max-width: 900px) {
+    body.login #container {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .rh-login-brand {
+        padding: 28px 24px 30px;
+    }
+
+    .rh-login-stack,
+    .rh-login-foot {
+        display: none;
+    }
+
+    .rh-login-pitch .rh-login-headline {
+        margin-top: 26px;
+        font-size: 2.1rem;
+    }
+}
+
+/* --- Single-message cards (lockout, GitHub sign-in pages) -------------------- */
+
+.rh-panel {
+    max-width: 720px;
+    margin: 24px auto 0;
+    padding: 28px 30px;
+    border: 1px solid var(--rh-line);
+    border-radius: var(--rh-radius);
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow);
+}
+
+.rh-panel h1 {
+    margin-top: 0;
+}
+
+.rh-panel h2 {
+    margin: 26px 0 8px;
+    font-size: 1.05rem;
+}
+
+.rh-panel p {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+.rh-panel .submit-row {
+    position: static;
+    margin-top: 12px;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
+}
+
+.rh-icon-badge {
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+    font: 800 1.3rem/1 var(--rh-display);
+}
+
+.rh-icon-badge.is-warn {
+    background: var(--rh-warn-soft);
+    color: var(--rh-warn-text);
+}
+
+ul.rh-account-list {
+    display: grid;
+    gap: 8px;
+    margin: 12px 0 4px;
+    padding: 0;
+    list-style: none;
+}
+
+ul.rh-account-list li {
+    padding: 0;
+    list-style: none;
+}
+
+.rh-account-list label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--rh-line);
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rh-account-list label:has(input:checked) {
+    border-color: var(--rh-text);
+    background: var(--rh-surface-2);
+}
+
+/* --- Error pages (404, 500) ---------------------------------------------------- */
+
+body.rh-error-page {
+    display: grid;
+    min-height: 100vh;
+    margin: 0;
+    place-items: center;
+}
+
+.rh-error {
+    max-width: 480px;
+    padding: 32px 24px;
+    text-align: center;
+}
+
+.rh-error-logo {
+    display: inline-block;
+    margin-bottom: 26px;
+}
+
+.rh-error-code {
+    margin: 0;
+    color: var(--rh-text);
+    font: 800 clamp(5rem, 16vw, 8rem)/0.9 var(--rh-display);
+    letter-spacing: -0.06em;
+}
+
+.rh-error h1 {
+    margin: 12px 0 10px;
+    color: var(--rh-text);
+    font: 700 1.6rem/1.2 var(--rh-display);
+}
+
+.rh-error p {
+    margin: 0 0 26px;
+    color: var(--rh-muted);
+    font-size: 1rem;
+    line-height: 1.6;
+}

@@ -1,0 +1,61 @@
+{% comment %}
+  Created vs resolved per day. Lines are SVG stretched to the plot; text,
+  dots and hover targets are HTML positioned in percent, so labels stay crisp
+  at any width. Every value is also in the table below the chart.
+{% endcomment %}
+<article class="rh-chart rh-chart-wide" aria-labelledby="flow-title">
+  <header class="rh-chart-head">
+    <div>
+      <h2 id="flow-title">Ticket flow</h2>
+      <p>Created and resolved per day, last {{ flow.days }} days (today so far)</p>
+    </div>
+    <ul class="rh-legend">
+      <li><span class="rh-key rh-key-line is-created" aria-hidden="true"></span>Created <strong>{{ flow.created_total }}</strong></li>
+      <li><span class="rh-key rh-key-line is-resolved" aria-hidden="true"></span>Resolved <strong>{{ flow.resolved_total }}</strong></li>
+    </ul>
+  </header>
+
+  <div class="rh-flow">
+    <div class="rh-flow-y" aria-hidden="true">
+      {% for tick in flow.ticks %}<span style="bottom: {{ tick.bottom|stringformat:'.2f' }}%">{{ tick.value }}</span>{% endfor %}
+    </div>
+    <div class="rh-flow-plot">
+      {% for tick in flow.ticks %}<span class="rh-grid" style="bottom: {{ tick.bottom|stringformat:'.2f' }}%" aria-hidden="true"></span>{% endfor %}
+      <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <polygon class="rh-area is-created" points="0,100 {{ flow.created_line }} 100,100"/>
+        <polyline class="rh-line is-resolved" points="{{ flow.resolved_line }}"/>
+        <polyline class="rh-line is-created" points="{{ flow.created_line }}"/>
+      </svg>
+      <span class="rh-dot is-created is-end" style="left: 100%; top: {{ flow.last.created_y|stringformat:'.2f' }}%" aria-hidden="true"></span>
+      <span class="rh-dot is-resolved is-end" style="left: 100%; top: {{ flow.last.resolved_y|stringformat:'.2f' }}%" aria-hidden="true"></span>
+      {% for point in flow.points %}
+        <div class="rh-flow-col" style="left: {{ point.x|stringformat:'.2f' }}%; width: calc(100% / {{ flow.days }})"
+             tabindex="0" data-tip
+             aria-label="{{ point.date|date:'j F' }}: {{ point.created }} created, {{ point.resolved }} resolved">
+          <span class="rh-dot is-created" style="top: {{ point.created_y|stringformat:'.2f' }}%" aria-hidden="true"></span>
+          <span class="rh-dot is-resolved" style="top: {{ point.resolved_y|stringformat:'.2f' }}%" aria-hidden="true"></span>
+          <span class="rh-tip-src" hidden>
+            <span class="rh-tip-title">{% if point.is_today %}Today so far{% else %}{{ point.date|date:"D j M" }}{% endif %}</span>
+            <span class="rh-tip-row"><span class="rh-key rh-key-line is-created"></span><strong>{{ point.created }}</strong> created</span>
+            <span class="rh-tip-row"><span class="rh-key rh-key-line is-resolved"></span><strong>{{ point.resolved }}</strong> resolved</span>
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="rh-flow-x" aria-hidden="true">
+      {% for point in flow.points %}{% if point.label %}<span{% if not point.label_narrow %} class="is-wide-only"{% endif %} style="left: {{ point.x|stringformat:'.2f' }}%">{% if point.is_today %}Today{% else %}{{ point.date|date:"j M" }}{% endif %}</span>{% endif %}{% endfor %}
+    </div>
+  </div>
+
+  <details class="rh-chart-table">
+    <summary>Show as table</summary>
+    <table>
+      <thead><tr><th scope="col">Day</th><th scope="col">Created</th><th scope="col">Resolved</th></tr></thead>
+      <tbody>
+        {% for point in flow.points %}
+          <tr><th scope="row">{{ point.date|date:"D j M" }}{% if point.is_today %} (today so far){% endif %}</th><td>{{ point.created }}</td><td>{{ point.resolved }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </details>
+</article>

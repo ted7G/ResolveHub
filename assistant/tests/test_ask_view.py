@@ -128,7 +128,7 @@ def test_rejects_malformed_json(login_as):
 
 
 def test_rejects_oversized_bodies(login_as):
-    response = ask(login_as(AGENT), question="ok?", padding="x" * 5000)
+    response = ask(login_as(AGENT), question="ok?", padding="x" * 13000)
 
     assert response.status_code == 413
 
@@ -215,3 +215,44 @@ def test_missing_api_key_is_explained(login_as, settings, fake_provider):
     assert response.status_code == 503
     assert "isn't set up" in response.json()["error"]
     assert not fake_provider.calls
+
+
+# --- Pages other than forms, and follow-up questions ---------------------------
+
+
+def test_list_questions_get_the_list_reference(login_as, fake_provider):
+    response = ask(login_as(AGENT), page="list")
+
+    assert response.status_code == 200
+    system = fake_provider.calls[0]["messages"][0]["content"]
+    assert "Page: the tickets list" in system
+    assert "Move selected tickets to Resolved" in system
+    assert "- Deadline: Overdue" in system
+
+
+def test_general_questions_need_no_model(login_as, fake_provider):
+    response = ask(login_as(VIEWER), page="general", model="")
+
+    assert response.status_code == 200
+    system = fake_provider.calls[0]["messages"][0]["content"]
+    assert "Dashboard, top to bottom" in system
+    assert "They can read tickets, customers, agents and tags but not change anything." in system
+
+
+def test_form_and_list_questions_still_need_a_model(login_as):
+    response = ask(login_as(AGENT), page="list", model="")
+
+    assert response.status_code == 400
+
+
+def test_recent_turns_are_sent_as_conversation(login_as, fake_provider):
+    history = [{"question": f"Question {n}?", "answer": f"Answer {n}."} for n in range(5)]
+    history.append({"question": 42, "answer": ["not text"]})
+
+    ask(login_as(AGENT), page="general", model="", question="And then?", history=history)
+
+    messages = fake_provider.calls[0]["messages"]
+    # The last three well-formed turns, as user/assistant pairs, then the question.
+    assert [m["role"] for m in messages] == ["system"] + ["user", "assistant"] * 2 + ["user"]
+    assert messages[1]["content"] == "Question 3?"
+    assert messages[-1]["content"] == "And then?"

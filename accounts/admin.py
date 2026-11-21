@@ -1,12 +1,20 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import GroupAdmin as DjangoGroupAdmin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.models import Group
 
 from tickets.admin.enhancements import AdminEnhancementsMixin
 
 User = get_user_model()
 
 admin.site.unregister(User)
+admin.site.unregister(Group)
+
+
+@admin.register(Group)
+class GroupAdmin(AdminEnhancementsMixin, DjangoGroupAdmin):
+    """Django's group admin, with the same list page as the help desk."""
 
 
 @admin.register(User)

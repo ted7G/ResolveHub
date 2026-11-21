@@ -1,0 +1,10 @@
+{% load static %}{% comment %}
+  The theme, in cascade order. tokens.css must come first: every other file
+  reads its custom properties.
+{% endcomment %}<link rel="stylesheet" href="{% static 'resolvehub/css/tokens.css' %}">
+<link rel="stylesheet" href="{% static 'resolvehub/css/base.css' %}">
+<link rel="stylesheet" href="{% static 'resolvehub/css/layout.css' %}">
+<link rel="stylesheet" href="{% static 'resolvehub/css/lists.css' %}">
+<link rel="stylesheet" href="{% static 'resolvehub/css/forms.css' %}">
+<link rel="stylesheet" href="{% static 'resolvehub/css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'resolvehub/css/charts.css' %}">

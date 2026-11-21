@@ -262,6 +262,9 @@ class Ticket(models.Model):
         return [
             "Status workflow, as 'from: allowed next': " + rules.describe_workflow() + ".",
             "Closed is final. If a customer comes back after closure, open a new ticket.",
+            "Closed can only be chosen from: "
+            + ", ".join(Status(s).label for s in Status if Status.CLOSED in rules.TRANSITIONS[s])
+            + ". Any other ticket goes to Resolved first, then Closed.",
             "New tickets start as New or Open.",
             "Open, Waiting on customer and Resolved tickets need an assignee.",
             "Only available agents can be given new tickets.",
