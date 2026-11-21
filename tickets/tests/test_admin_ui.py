@@ -30,9 +30,13 @@ def desk(make_ticket, make_agent):
     """A small desk: two new tickets (one overdue), one open, one closed."""
 
     def build(me):
-        make_ticket()
+        # A few minutes old, not "now": on a coarse clock a ticket created in
+        # the same tick as the dashboard query would sit exactly on the
+        # 24-hour boundary of "due soon".
+        recent = timezone.now() - timedelta(minutes=5)
+        make_ticket(created_at=recent)
         make_ticket(created_at=timezone.now() - timedelta(days=5))
-        make_ticket(status=Status.OPEN, assignee=me)
+        make_ticket(status=Status.OPEN, assignee=me, created_at=recent)
         make_ticket(status=Status.CLOSED, assignee=make_agent())
 
     return build

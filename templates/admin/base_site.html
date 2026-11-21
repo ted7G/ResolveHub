@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load static assistant_tags desk_tags %}
+{% load static assistant_tags desk_tags rh_icons %}
 
 {% block extrahead %}
   {{ block.super }}
@@ -52,14 +52,14 @@
         <div class="rh-usermenu-panel">
           <p class="rh-usermenu-who">Signed in as <strong>{{ user.get_username }}</strong></p>
           {% if github_login_enabled %}
-            <a href="{% url 'socialaccount_connections' %}">GitHub sign-in</a>
+            <a href="{% url 'socialaccount_connections' %}">{% icon "github" %}GitHub sign-in</a>
           {% endif %}
           {% if user.has_usable_password %}
-            <a href="{% url 'admin:password_change' %}">Change password</a>
+            <a href="{% url 'admin:password_change' %}">{% icon "key" %}Change password</a>
           {% endif %}
           <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
             {% csrf_token %}
-            <button type="submit">Log out</button>
+            <button type="submit">{% icon "logout" %}Log out</button>
           </form>
         </div>
       </details>

@@ -1,13 +1,16 @@
-{% comment %}
+{% load rh_icons %}{% comment %}
   Created vs resolved per day. Lines are SVG stretched to the plot; text,
   dots and hover targets are HTML positioned in percent, so labels stay crisp
   at any width. Every value is also in the table below the chart.
 {% endcomment %}
 <article class="rh-chart rh-chart-wide" aria-labelledby="flow-title">
   <header class="rh-chart-head">
-    <div>
+    <div class="rh-chart-title">
+      <span class="rh-chart-icon">{% icon "trend" %}</span>
+      <div>
       <h2 id="flow-title">Ticket flow</h2>
       <p>Created and resolved per day, last {{ flow.days }} days ({{ flow.zone }} days; today so far)</p>
+      </div>
     </div>
     <ul class="rh-legend">
       <li><span class="rh-key rh-key-line is-created" aria-hidden="true"></span>Created <strong>{{ flow.created_total }}</strong></li>

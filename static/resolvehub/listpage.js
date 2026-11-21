@@ -68,6 +68,15 @@
             return;
         }
         form.classList.add("rh-live");
+        // A short placeholder in the box; Django's longer help text becomes its tooltip.
+        const help = document.getElementById("searchbar_helptext");
+        const heading = document.querySelector("#content h1");
+        if (!input.placeholder && heading) {
+            input.placeholder = `Search ${heading.textContent.trim().toLowerCase()}…`;
+        }
+        if (help) {
+            input.title = help.textContent.trim();
+        }
         const note = document.createElement("span");
         note.className = "rh-search-note";
         note.hidden = true;
@@ -169,8 +178,20 @@
         update();
     }
 
+    // The result count ("129 results (Show all)") describes the page, so it
+    // sits next to the title and leaves the toolbar row to filters and search.
+    function moveResultCount() {
+        const count = document.querySelector("#changelist #toolbar .small.quiet");
+        const heading = document.querySelector("#content h1");
+        if (count && heading) {
+            count.classList.add("rh-result-count");
+            heading.append(count);
+        }
+    }
+
     function start() {
-        liveSearch();
+        liveSearch(); // reads the page title, so before the count joins it
+        moveResultCount();
         actionBar();
     }
 

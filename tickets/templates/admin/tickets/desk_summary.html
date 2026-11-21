@@ -1,4 +1,4 @@
-{% load static %}
+{% load static rh_icons %}
 <div class="rh-hello">
   <div>
     <h1><span data-rh-greeting>{{ greeting }}</span>, <em>{% firstof user.first_name user.get_username %}</em></h1>
@@ -11,7 +11,7 @@
 {% if counts %}
   <div class="rh-stats">
     <a class="rh-stat is-hero" href="{{ links.active }}">
-      <span class="rh-stat-label">Active tickets</span>
+      <span class="rh-stat-label">{% icon "inbox" %}Active tickets</span>
       <span class="rh-stat-value">{{ counts.active }}</span>
       {% if counts.active %}
         <span class="rh-mix" aria-hidden="true">
@@ -28,26 +28,26 @@
     </a>
 
     <a class="rh-stat{% if counts.overdue %} is-alert{% endif %}" href="{{ links.overdue }}">
-      <span class="rh-stat-label">Overdue</span>
+      <span class="rh-stat-label">{% icon "alarm" %}Overdue</span>
       <span class="rh-stat-value">{{ counts.overdue }}</span>
       <span class="rh-stat-note">Past their response deadline</span>
     </a>
 
     <a class="rh-stat" href="{{ links.due_soon }}">
-      <span class="rh-stat-label">Due in 24 hours</span>
+      <span class="rh-stat-label">{% icon "clock" %}Due in 24 hours</span>
       <span class="rh-stat-value">{{ counts.due_soon }}</span>
       <span class="rh-stat-note">Deadline coming up next</span>
     </a>
 
     <a class="rh-stat" href="{{ links.unassigned }}">
-      <span class="rh-stat-label">Unassigned</span>
+      <span class="rh-stat-label">{% icon "user-x" %}Unassigned</span>
       <span class="rh-stat-value">{{ counts.unassigned }}</span>
       <span class="rh-stat-note">Active tickets nobody owns yet</span>
     </a>
 
     {% if show_mine %}
       <a class="rh-stat" href="{{ links.mine }}">
-        <span class="rh-stat-label">Assigned to you</span>
+        <span class="rh-stat-label">{% icon "user-check" %}Assigned to you</span>
         <span class="rh-stat-value">{{ counts.mine }}</span>
         <span class="rh-stat-note">Your active tickets</span>
       </a>

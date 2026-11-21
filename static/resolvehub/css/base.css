@@ -71,6 +71,30 @@ form .aligned p.help {
     line-height: 1.5;
 }
 
+/* --- Icons (tickets/templatetags/rh_icons.py) ------------------------------ */
+
+.rh-icon {
+    flex: none;
+    width: 1.15em;
+    height: 1.15em;
+    vertical-align: -0.2em;
+}
+
+/* Card headings that carry an icon instead of the lime diamond. */
+.module h2.rh-icon-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.module h2.rh-icon-heading::before {
+    display: none;
+}
+
+.module h2.rh-icon-heading .rh-icon {
+    color: var(--rh-muted);
+}
+
 /* --- Links ----------------------------------------------------------------- */
 
 a:link,

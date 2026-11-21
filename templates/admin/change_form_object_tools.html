@@ -1,0 +1,10 @@
+{% extends "admin/change_form_object_tools.html" %}
+{% load i18n admin_urls rh_icons %}
+{% comment %}Django's History button, with an icon.{% endcomment %}
+{% block object-tools-items %}
+<li>
+    {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+    <a href="{% add_preserved_filters history_url %}" class="historylink">{% icon "history" %}{% translate "History" %}</a>
+</li>
+{% if has_absolute_url %}<li><a href="{{ absolute_url }}" class="viewsitelink">{% translate "View on site" %}</a></li>{% endif %}
+{% endblock %}

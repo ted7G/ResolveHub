@@ -55,6 +55,7 @@ def top_nav(context):
             entries.append(
                 {
                     "name": model["name"],
+                    "object_name": model["object_name"],
                     "url": url,
                     "current": request.path.startswith(url),
                     "order": _NAV_ORDER.index(key),

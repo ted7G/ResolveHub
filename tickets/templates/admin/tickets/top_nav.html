@@ -1,6 +1,6 @@
-<nav class="rh-topnav" aria-label="Sections">
-  <a href="{{ index_url }}"{% if on_index %} aria-current="page"{% endif %}>Dashboard</a>
+{% load rh_icons %}<nav class="rh-topnav" aria-label="Sections">
+  <a href="{{ index_url }}"{% if on_index %} aria-current="page"{% endif %}>{% icon "dashboard" %}Dashboard</a>
   {% for entry in entries %}
-    <a href="{{ entry.url }}"{% if entry.current %} aria-current="page"{% endif %}>{{ entry.name }}</a>
+    <a href="{{ entry.url }}"{% if entry.current %} aria-current="page"{% endif %}>{% model_icon entry.object_name %}{{ entry.name }}</a>
   {% endfor %}
 </nav>

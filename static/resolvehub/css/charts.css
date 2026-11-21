@@ -24,6 +24,29 @@
     gap: 10px 18px;
 }
 
+.rh-chart-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.rh-chart-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: var(--rh-volt-soft);
+    color: var(--rh-text);
+    box-shadow: 0 0 0 1px var(--rh-line) inset;
+}
+
+.rh-chart-icon .rh-icon {
+    width: 18px;
+    height: 18px;
+}
+
 #content .rh-chart-head h2 {
     margin: 0 0 4px;
     padding: 0;

@@ -145,6 +145,12 @@ html[data-theme] {
     font-weight: 600;
 }
 
+.rh-meta .rh-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--rh-faint);
+}
+
 .rh-meta-label {
     color: var(--rh-faint);
     font-size: 0.6875rem;

@@ -1,5 +1,5 @@
 {% extends "admin/index.html" %}
-{% load i18n log desk_tags %}
+{% load i18n log desk_tags rh_icons %}
 {% comment %}
   The dashboard: live desk numbers, charts of the flow and the load, recent
   activity, then the admin's own app list.
@@ -14,12 +14,12 @@
   <div class="rh-dash-grid">
     {% if charts %}
       {% include "admin/tickets/charts/flow.html" with flow=charts.flow %}
-      {% include "admin/tickets/charts/split_bars.html" with data=charts.priority chart_id="priority" title="Active by priority" subtitle="Open work right now, by urgency" row_heading="Priority" %}
-      {% include "admin/tickets/charts/split_bars.html" with data=charts.workload chart_id="workload" title="Team workload" subtitle="Agents with the most active tickets" row_heading="Agent" %}
+      {% include "admin/tickets/charts/split_bars.html" with data=charts.priority chart_id="priority" chart_icon="bars" title="Active by priority" subtitle="Open work right now, by urgency" row_heading="Priority" %}
+      {% include "admin/tickets/charts/split_bars.html" with data=charts.workload chart_id="workload" chart_icon="agent" title="Team workload" subtitle="Agents with the most active tickets" row_heading="Agent" %}
     {% endif %}
 
     <div class="module rh-activity" id="recent-actions-module">
-      <h2>{% translate 'Recent actions' %}</h2>
+      <h2 class="rh-icon-heading">{% icon "activity" %}{% translate 'Recent actions' %}</h2>
       {% get_admin_log 8 as admin_log for_user user %}
       {% if not admin_log %}
         <p>Nothing yet. Changes you make in the admin show up here.</p>

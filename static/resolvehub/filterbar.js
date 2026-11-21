@@ -60,6 +60,20 @@
 
         changelist.classList.add("rh-has-filterbar");
 
+        // Django's "✖ Clear all filters" link, shortened to fit the row.
+        panel.querySelectorAll("#changelist-filter-extra-actions a").forEach((link) => {
+            if (link.textContent.includes("Clear all filters")) {
+                link.textContent = "Clear filters";
+                link.classList.add("rh-clear-filters");
+            }
+        });
+
+        // One toolbar row: the filter buttons on the left, search on the right.
+        const toolbar = document.getElementById("toolbar");
+        if (toolbar) {
+            toolbar.prepend(panel);
+        }
+
         document.addEventListener("click", (event) => {
             groups.forEach((group) => {
                 if (group.open && !group.contains(event.target)) {

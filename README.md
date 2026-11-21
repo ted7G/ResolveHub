@@ -63,8 +63,10 @@ Customer 1──* Ticket *──1 Agent 1──1 User
   priority, team workload), each linking to the matching filtered list
   (`tickets/dashboard.py`); filters as buttons above the table; search as
   you type; the conversation as a chat thread; searchable dropdowns (the
-  Select2 copy that ships with the admin); light and dark themes; phone
-  layouts. Chart colours were checked for colour-blind separation.
+  Select2 copy that ships with the admin); one line-icon set
+  (`tickets/templatetags/rh_icons.py`); light and dark themes; layouts
+  checked from 390px phones to 2560px screens. Chart colours were checked
+  for colour-blind separation.
 - **Roles** (`accounts/roles.py`, synced by `manage.py setup_roles`):
 
   | | Support admin | Agent | Viewer |
