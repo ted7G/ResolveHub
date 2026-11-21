@@ -13,10 +13,9 @@ response deadlines, and the conversation lives on the ticket.
 | `viewer` | Viewer | Everything read-only, internal notes hidden |
 
 Password for all three: `resolvehub-demo-2026`. Five wrong passwords lock a
-login for 15 minutes from that address. The AI assistant
-is **Ask AI** in the header (or the round button at the bottom right) on
-every page. GitHub sign-in works after you link it from the menu under your
-name.
+login for 15 minutes from that address. The AI assistant is **Ask AI** in
+the header (or the round button at the bottom right) on every page. GitHub
+sign-in works after you link it from the menu under your name.
 
 ## Stack and why
 
@@ -100,9 +99,10 @@ Customer 1──* Ticket *──1 Agent 1──1 User
   reads the client IP the proxy appended, so a forged `X-Forwarded-For`
   can't dodge it.
 - Uploads: PDF, images, TXT/LOG/CSV only, 5 MB max, and the file's first
-  bytes must match its extension. Uploads are held in memory and cut off just
-  past the limit, so even an oversized file never touches local disk. Stored under random names in a private
-  bucket and removed when their message or ticket is deleted.
+  bytes must match its extension. They are held in memory and cut off just
+  past the limit, so even an oversized file never touches local disk. Stored
+  under random names in a private bucket and removed when their message or
+  ticket is deleted.
 - Secrets only from environment variables; settings refuse to start in
   production without a database, storage credentials or a secret key, and
   local-disk storage is rejected unless `DEBUG` is on. The container runs
@@ -146,8 +146,10 @@ build pack Dockerfile, port 8000, then set:
 | `OPENAI_API_KEY` | optional |
 | `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | optional; callback `https://<host>/accounts/github/login/callback/` |
 
-Demo data is loaded by running `seed` once from a machine with the
-production variables set. `.env.example` lists every setting.
+A public-repository resource has no GitHub webhook, so each deploy is
+started with Coolify's **Redeploy** button or its API, not by a push. Demo
+data is loaded by running `seed` once from a machine with the production
+variables set. `.env.example` lists every setting.
 
 ## Trade-offs
 
@@ -157,6 +159,10 @@ production variables set. `.env.example` lists every setting.
   the real fix is a Neon project in the server's region.
 - **One-file attachments.** One file per message keeps forms and validation
   simple.
+- **Upload size is enforced in the app.** An oversized file is read to the
+  end (only the first 5 MB kept in memory) before it is rejected. A request
+  size limit on the proxy would stop it earlier; I kept the check in code so
+  it is tested and works on any host.
 
 ## Deliberately left out
 
