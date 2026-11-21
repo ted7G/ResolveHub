@@ -1145,7 +1145,7 @@ td ul.errorlist + select {
     gap: 8px 10px;
 }
 
-#changelist #toolbar form > div {
+#changelist #toolbar form > div:not(.help) {
     display: contents;
 }
 
@@ -1529,7 +1529,6 @@ ul.messagelist li.error {
 
 .dashboard #content {
     width: auto;
-    max-width: 1240px;
 }
 
 .rh-hello {
@@ -2202,7 +2201,8 @@ body.login .errornote {
 /* --- Single-card pages (lockout, GitHub pages) ----------------------------- */
 
 .rh-panel {
-    max-width: 640px;
+    max-width: 720px;
+    margin: 24px auto 0;
     padding: 28px 30px;
     border: 1px solid var(--rh-line);
     border-radius: var(--rh-radius);
@@ -2717,7 +2717,6 @@ fieldset .vTextField {
 
 /* Delete confirmation as a single card. */
 .delete-confirmation #content {
-    max-width: 880px;
     padding: 26px 30px 30px;
     border: 1px solid var(--rh-line);
     border-radius: var(--rh-radius);
@@ -2845,7 +2844,7 @@ button {
         margin-left: 0;
     }
 
-    #changelist .actions select,
+    #changelist .actions select:not(.select2-hidden-accessible),
     #changelist .actions .select2-container {
         min-width: 0;
         width: 100% !important;
@@ -2977,4 +2976,466 @@ button {
 #content .inline-group .tabular fieldset.module,
 #change-history {
     overflow-x: auto;
+}
+
+/* --- Page width ------------------------------------------------------------ */
+
+/* Content uses the full window, centred once it passes a comfortable
+   reading width on very large monitors. Breadcrumbs follow the same edge. */
+#content {
+    max-width: 1840px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Same column as the content: its 1840px plus the page's 36px gutters. */
+div.breadcrumbs {
+    box-sizing: border-box;
+    max-width: 1912px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 36px;
+    padding-right: 36px;
+}
+
+/* The "Add ticket" button sits at the top right of the same column. */
+#content .object-tools {
+    margin-top: -48px;
+}
+
+/* --- Filter bar (static/resolvehub/filterbar.js) --------------------------- */
+
+#changelist.rh-has-filterbar {
+    flex-direction: column;
+    gap: 14px;
+}
+
+#changelist.rh-has-filterbar .changelist-form-container {
+    width: 100%;
+}
+
+#changelist.rh-has-filterbar #changelist-filter {
+    order: -1;
+    position: static;
+    display: flex;
+    flex: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter h2 {
+    display: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details {
+    position: relative;
+    padding: 0;
+    border: 0;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--rh-surface);
+    color: var(--rh-text);
+    font: 700 0.8125rem/1 var(--font-family-primary);
+    letter-spacing: 0;
+    text-transform: none;
+    list-style: none;
+    cursor: pointer;
+    box-shadow: 0 0 0 1px var(--rh-line-strong) inset;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary::-webkit-details-marker {
+    display: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary::marker {
+    content: "";
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    margin-left: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    opacity: 0.55;
+    transform: rotate(45deg) translateY(-2px);
+}
+
+#changelist.rh-has-filterbar #changelist-filter details > summary:hover {
+    box-shadow: 0 0 0 1px var(--rh-text) inset;
+}
+
+#changelist.rh-has-filterbar #changelist-filter details[open] > summary {
+    box-shadow: 0 0 0 1px var(--rh-text) inset, 0 0 0 4px color-mix(in srgb, var(--rh-volt) 55%, transparent);
+}
+
+#changelist.rh-has-filterbar #changelist-filter details.is-active > summary {
+    background: var(--rh-ink);
+    color: #fff;
+    box-shadow: none;
+}
+
+html[data-theme="dark"] #changelist.rh-has-filterbar #changelist-filter details.is-active > summary {
+    background: var(--rh-volt);
+    color: var(--rh-on-volt);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #changelist.rh-has-filterbar #changelist-filter details.is-active > summary {
+        background: var(--rh-volt);
+        color: var(--rh-on-volt);
+    }
+}
+
+.rh-filter-value {
+    font-weight: 600;
+    opacity: 0.85;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 25;
+    width: max-content;
+    min-width: 220px;
+    max-width: min(320px, calc(100vw - 32px));
+    max-height: 340px;
+    padding: 8px;
+    overflow-y: auto;
+    border: 1px solid var(--rh-line);
+    border-radius: 14px;
+    background: var(--rh-surface);
+    box-shadow: var(--rh-shadow-lift);
+    animation: rh-menu-in 0.14s ease-out;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop ul {
+    padding: 0;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop .rh-filter-search {
+    width: 100%;
+    margin: 0 0 6px;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop .rh-filter-empty {
+    padding: 4px 10px 6px;
+}
+
+#changelist.rh-has-filterbar #changelist-filter-extra-actions {
+    display: flex;
+    order: 99;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+}
+
+#changelist.rh-has-filterbar #changelist-filter-extra-actions h3 {
+    margin: 0;
+}
+
+/* --- Ticket list on narrower screens ---------------------------------------- */
+
+@media (max-width: 1200px) {
+    #result_list .column-comment_count,
+    #result_list .field-comment_count,
+    #result_list .column-created,
+    #result_list .field-created {
+        display: none;
+    }
+}
+
+/* --- Odds and ends found in the layout audit --------------------------------- */
+
+#changelist .actions {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.paginator {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+}
+
+@media (max-width: 767px) {
+    div.breadcrumbs {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    #content .object-tools {
+        margin-top: 0;
+    }
+
+    .dashboard .module th,
+    .dashboard .module td {
+        padding: 10px 8px;
+    }
+
+    .dashboard .module td a.addlink,
+    .dashboard .module td a.changelink,
+    .dashboard .module td a.viewlink {
+        padding: 0 8px;
+    }
+
+    #changelist.rh-has-filterbar #changelist-filter-extra-actions {
+        margin-left: 0;
+    }
+}
+
+#changelist.rh-has-filterbar details:not([open]) > .rh-filter-pop {
+    display: none;
+}
+
+#changelist.rh-has-filterbar .rh-filter-pop.is-flipped {
+    left: auto;
+    right: 0;
+}
+
+/* Long values wrap instead of widening the whole table. */
+#result_list td.field-email {
+    min-width: 170px;
+    overflow-wrap: anywhere;
+}
+
+#result_list td.field-created_at {
+    min-width: 96px;
+    white-space: normal;
+    color: var(--rh-muted);
+    font-size: 0.75rem;
+}
+
+@media (max-width: 1200px) {
+    #result_list td,
+    #result_list th {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    #changelist table thead th .text a,
+    #changelist table thead th .text span {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+}
+
+/* Headings can hold long values (an email address as the subtitle). */
+#content h1,
+#content > h2,
+div.breadcrumbs {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1200px) {
+    #result_list .field-subject {
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 900px) {
+    #result_list .column-created_at,
+    #result_list .field-created_at,
+    #result_list .column-last_login,
+    #result_list .field-last_login {
+        display: none;
+    }
+}
+
+/* Django marks filter titles with an arrow; the buttons have their own chevron. */
+#changelist.rh-has-filterbar #changelist-filter details > summary::before {
+    content: none;
+}
+
+#changelist.rh-has-filterbar #changelist-filter {
+    margin-top: 6px;
+}
+
+/* Search help on its own line under the search box. */
+#changelist #toolbar .help,
+#searchbar_helptext {
+    flex-basis: 100%;
+    order: 10;
+    margin: 0;
+    padding-left: 4px;
+}
+
+/* When the navigation wraps to a second row the header has to grow with it. */
+@media (max-width: 1200px) {
+    #header#header {
+        height: auto;
+        padding-bottom: 12px;
+    }
+}
+
+/* #container is a full-height flex column; without this the header shrinks
+   to its 64px minimum and a wrapped navigation row spills out of it. */
+#header {
+    flex-shrink: 0;
+}
+
+/* Django's responsive.css pads #content and the breadcrumbs differently on
+   narrower screens; keep both on the page gutter. */
+@media (max-width: 1024px) {
+    #container #content {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    #container div.breadcrumbs {
+        padding-left: 36px;
+        padding-right: 36px;
+    }
+}
+
+@media (max-width: 767px) {
+    #container div.breadcrumbs {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+}
+
+/* --- Wide-screen form layouts ---------------------------------------------- */
+
+/* Ticket page: details and conversation on the left, handling on the right
+   (columns come from tickets/templates/admin/tickets/ticket/change_form.html). */
+@media (min-width: 1280px) {
+    .rh-ticket-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 400px);
+        gap: 22px;
+        align-items: start;
+    }
+
+    #ticket_form fieldset.rh-side .form-row {
+        padding: 14px 18px;
+    }
+
+    #ticket_form fieldset.rh-side .flex-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    #ticket_form fieldset.rh-side label {
+        width: auto;
+        min-width: 0;
+        padding: 0;
+    }
+
+    #ticket_form fieldset.rh-side div.help,
+    #ticket_form fieldset.rh-side p.help {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    #ticket_form fieldset.rh-side .readonly {
+        margin-left: 0;
+        padding-top: 0;
+    }
+
+    #ticket_form fieldset.rh-side .related-widget-wrapper {
+        flex-wrap: nowrap;
+    }
+
+    #ticket_form fieldset.rh-side select,
+    #ticket_form fieldset.rh-side .select2-container {
+        max-width: 100%;
+    }
+
+    .rh-ticket-main fieldset textarea {
+        width: 100%;
+    }
+}
+
+/* The side column stays in view while reading a long conversation. */
+@media (min-width: 1280px) and (min-height: 800px) {
+    .rh-ticket-side {
+        position: sticky;
+        top: 84px;
+    }
+}
+
+/* Other forms: two fields per row on wide screens; long fields keep a row. */
+@media (min-width: 1400px) {
+    #content form > div > fieldset.module.aligned:not(.rh-side):not(.collapse):not(.wide) {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #content form > div > fieldset.module.aligned > .fieldset-heading,
+    #content form > div > fieldset.module.aligned > .description,
+    #content form > div > fieldset.module.aligned > .form-row:has(textarea),
+    #content form > div > fieldset.module.aligned > .form-row:has(.selector),
+    #content form > div > fieldset.module.aligned > .form-row.field-password,
+    #content form > div > fieldset.module.aligned > .form-row:only-of-type {
+        grid-column: 1 / -1;
+    }
+
+    #content form > div > fieldset.module.aligned > .form-row:nth-last-child(2):nth-child(odd) {
+        border-bottom: 0;
+    }
+}
+
+/* Short forms Django marks "wide" (password change, new user): one centred
+   column rather than a page-wide card with three fields in it. */
+#content:has(form > div > fieldset.module.wide) {
+    max-width: 820px;
+}
+
+
+/* Narrower screens: one column in the familiar order (details, handling,
+   then the conversation and reply). */
+@media (max-width: 1279px) {
+    .rh-ticket-layout {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rh-ticket-main {
+        display: contents;
+    }
+
+    .rh-ticket-main > fieldset {
+        order: 1;
+    }
+
+    .rh-ticket-side {
+        order: 2;
+    }
+
+    .rh-ticket-main > .inline-group {
+        order: 3;
+    }
+}
+
+/* Text fields fill the ticket's main column. */
+@media (min-width: 1280px) {
+    #ticket_form .rh-ticket-main textarea,
+    #ticket_form .rh-ticket-main #id_subject {
+        width: 100%;
+        max-width: 100%;
+    }
 }

@@ -7,17 +7,17 @@ from tickets.models import Agent, Ticket
 from tickets.permissions import can_edit_ticket, readonly_reason
 
 from . import actions, display
+from .enhancements import AdminEnhancementsMixin
 from .filters import AssignmentFilter, DeadlineFilter
 from .forms import TicketAdminForm
 from .inlines import AddCommentInline, CommentHistoryInline
-from .searchable import SearchableSelectsMixin
 
 # Matches "RH-00042", "rh-42" or just "42" in the search box.
 _REFERENCE_RE = re.compile(r"(?:rh-)?0*(\d{1,9})", re.IGNORECASE)
 
 
 @admin.register(Ticket)
-class TicketAdmin(SearchableSelectsMixin, admin.ModelAdmin):
+class TicketAdmin(AdminEnhancementsMixin, admin.ModelAdmin):
     form = TicketAdminForm
 
     list_display = [
@@ -62,12 +62,16 @@ class TicketAdmin(SearchableSelectsMixin, admin.ModelAdmin):
     ]
     fieldsets = [
         (None, {"fields": ["reference", "subject", "description", "customer"]}),
-        ("Handling", {"fields": ["status", "priority", "assignee", "tags"]}),
+        # "rh-side" puts these in the right-hand column on wide screens.
+        (
+            "Handling",
+            {"fields": ["status", "priority", "assignee", "tags"], "classes": ["rh-side"]},
+        ),
         (
             "Timeline",
             {
                 "fields": ["created_at", "due_at", "resolved_at", "closed_at", "updated_at"],
-                "classes": ["collapse"],
+                "classes": ["collapse", "rh-side"],
             },
         ),
     ]

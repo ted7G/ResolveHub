@@ -123,7 +123,7 @@ def test_conversation_marks_who_wrote_what(login_as, make_ticket, make_user):
     assert 'name="comments-0-id"' in page
 
 
-def test_searchable_select_assets_load_once(superuser_client, make_ticket):
+def test_admin_enhancement_assets_load_once(superuser_client, make_ticket):
     ticket = make_ticket()
 
     for url in (
@@ -134,6 +134,7 @@ def test_searchable_select_assets_load_once(superuser_client, make_ticket):
         assert page.count("vendor/jquery/jquery") == 1, url
         assert page.count("select2/select2.full") == 1, url
         assert page.count("resolvehub/searchable") == 1, url
+        assert page.count("resolvehub/filterbar") == 1, url
 
 
 def test_heading_and_strip_show_the_saved_ticket_after_a_failed_save(login_as, make_ticket):

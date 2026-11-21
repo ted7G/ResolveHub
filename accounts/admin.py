@@ -2,13 +2,15 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
+from tickets.admin.enhancements import AdminEnhancementsMixin
+
 User = get_user_model()
 
 admin.site.unregister(User)
 
 
 @admin.register(User)
-class UserAdmin(DjangoUserAdmin):
+class UserAdmin(AdminEnhancementsMixin, DjangoUserAdmin):
     """
     Django's user admin, with the privilege-escalation paths closed for
     anyone who isn't a superuser: they can manage staff accounts and assign
