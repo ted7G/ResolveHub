@@ -66,7 +66,7 @@ def ticket_flow(days=FLOW_DAYS):
                 "date": day,
                 "created": made,
                 "resolved": done,
-                "x": 100 * index / (days - 1),
+                "x": 100 * index / max(days - 1, 1),
                 "created_y": 100 - 100 * made / maximum,
                 "resolved_y": 100 - 100 * done / maximum,
                 # Every second day is labelled; every fourth on narrow screens.
@@ -85,6 +85,7 @@ def ticket_flow(days=FLOW_DAYS):
         "resolved_total": sum(resolved.get(d, 0) for d in dates),
         "last": points[-1],
         "days": days,
+        "zone": timezone.get_current_timezone_name(),
     }
 
 

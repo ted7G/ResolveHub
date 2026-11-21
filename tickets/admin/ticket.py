@@ -143,7 +143,7 @@ class TicketAdmin(AdminEnhancementsMixin, admin.ModelAdmin):
                 context["readonly_reason"] = readonly_reason(request.user, obj)
         return super().render_change_form(request, context, add, change, form_url, obj)
 
-    def assistant_notes(self, request, obj):
+    def assistant_notes(self, request, obj, page):
         """Ticket-specific limits for the form assistant (see assistant.context)."""
         user = request.user
         notes = []
@@ -167,7 +167,7 @@ class TicketAdmin(AdminEnhancementsMixin, admin.ModelAdmin):
             )
         if not user.has_perm("tickets.view_internal_note"):
             notes.append("They can't see or write internal notes.")
-        if obj is None and hasattr(user, "agent_profile"):
+        if page == "list" and hasattr(user, "agent_profile"):
             notes.append(
                 'Their own tickets ("my tickets") are the Assignment filter set to '
                 "Assigned to me; combine it with other filters, e.g. Deadline set to Overdue."

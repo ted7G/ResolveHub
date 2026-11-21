@@ -1,5 +1,7 @@
 from django import forms
 from django.conf import settings
+from django.contrib.admin.options import IS_POPUP_VAR
+from django.utils.text import capfirst
 
 
 class AdminEnhancementsMixin:
@@ -44,9 +46,11 @@ class AdminEnhancementsMixin:
         return super().get_action_choices(request, [("", "Choose an action…")])
 
     def changelist_view(self, request, extra_context=None):
-        # "Tickets" reads better than Django's "Select ticket to change".
-        extra_context = {
-            "title": self.model._meta.verbose_name_plural.capitalize(),
-            **(extra_context or {}),
-        }
+        # "Tickets" reads better than Django's "Select ticket to change". Popup
+        # lookups keep Django's "Select ticket" wording.
+        if IS_POPUP_VAR not in request.GET:
+            extra_context = {
+                "title": capfirst(self.model._meta.verbose_name_plural),
+                **(extra_context or {}),
+            }
         return super().changelist_view(request, extra_context)

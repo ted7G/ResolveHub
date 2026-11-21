@@ -253,6 +253,31 @@ def test_recent_turns_are_sent_as_conversation(login_as, fake_provider):
 
     messages = fake_provider.calls[0]["messages"]
     # The last three well-formed turns, as user/assistant pairs, then the question.
-    assert [m["role"] for m in messages] == ["system"] + ["user", "assistant"] * 2 + ["user"]
-    assert messages[1]["content"] == "Question 3?"
+    assert [m["role"] for m in messages] == ["system"] + ["user", "assistant"] * 3 + ["user"]
+    assert messages[1]["content"] == "Question 2?"
     assert messages[-1]["content"] == "And then?"
+
+
+def test_list_reference_counts_people_instead_of_naming_them(
+    login_as, make_agent, make_ticket, fake_provider
+):
+    agent = make_agent()
+    agent.user.first_name = "Zebedee"
+    agent.user.save()
+    # The assignee filter only lists agents who have tickets.
+    make_ticket(status=Status.OPEN, assignee=agent)
+
+    ask(login_as(VIEWER), page="list")
+
+    system = fake_provider.calls[0]["messages"][0]["content"]
+    assert "Zebedee" not in system
+    assert "- Assignee: one option per assignee" in system
+
+
+def test_the_assistant_ignores_its_own_query_string(login_as, fake_provider):
+    url = f"{URL}?created_at__gte=not-a-date&q=anything"
+    payload = {"page": "list", "model": "tickets.ticket", "question": "What can I filter by?"}
+
+    response = login_as(AGENT).post(url, json.dumps(payload), content_type="application/json")
+
+    assert response.status_code == 200

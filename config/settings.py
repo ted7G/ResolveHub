@@ -284,7 +284,8 @@ SILENCED_SYSTEM_CHECKS = ["security.W021"]
 # --- Internationalization ---------------------------------------------------
 
 LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+# Dates on the dashboard (and "today" on its chart) use this zone.
+TIME_ZONE = env("TIME_ZONE", default="UTC")
 USE_I18N = True
 USE_TZ = True
 
@@ -322,3 +323,6 @@ OPENAI_MODEL = env("OPENAI_MODEL", default="gpt-4o-mini")
 ASSISTANT_TIMEOUT_SECONDS = env.float("ASSISTANT_TIMEOUT_SECONDS", default=20.0)
 ASSISTANT_REQUESTS_PER_MINUTE = env.int("ASSISTANT_REQUESTS_PER_MINUTE", default=6)
 ASSISTANT_REQUESTS_PER_DAY = env.int("ASSISTANT_REQUESTS_PER_DAY", default=100)
+# Low randomness keeps answers close to the page reference. Leave empty for
+# models that only accept the default (OpenAI's reasoning models).
+ASSISTANT_TEMPERATURE = env("ASSISTANT_TEMPERATURE", default="0.2")

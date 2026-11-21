@@ -58,7 +58,7 @@ def _history(payload):
     if not isinstance(turns, list):
         return []
     cleaned = []
-    for turn in turns[-MAX_HISTORY_TURNS:]:
+    for turn in turns:
         if not isinstance(turn, dict):
             continue
         question, answer = turn.get("question"), turn.get("answer")
@@ -67,7 +67,7 @@ def _history(payload):
         question, answer = _clean_text(question)[:500], _clean_text(answer)[:MAX_ANSWER_CHARS]
         if question and answer:
             cleaned.append((question, answer))
-    return cleaned
+    return cleaned[-MAX_HISTORY_TURNS:]
 
 
 def _error(message, status):

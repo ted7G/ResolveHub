@@ -1,5 +1,6 @@
 from django import template
 from django.urls import reverse
+from django.utils.text import capfirst
 
 register = template.Library()
 
@@ -54,15 +55,20 @@ def assistant_widget(context):
     """
     request = context.get("request")
     user = getattr(request, "user", None)
-    if not context.get("has_permission") or user is None or not user.is_staff:
+    if (
+        not context.get("has_permission")
+        or context.get("is_popup")
+        or user is None
+        or not user.is_staff
+    ):
         return {"show": False}
 
     opts = context.get("opts")
     original = context.get("original")
     if opts is not None and context.get("adminform") is not None:
-        page, scope = "form", f"{opts.verbose_name.capitalize()} form"
+        page, scope = "form", f"{capfirst(opts.verbose_name)} form"
     elif opts is not None and context.get("cl") is not None:
-        page, scope = "list", f"{opts.verbose_name_plural.capitalize()} list"
+        page, scope = "list", f"{capfirst(opts.verbose_name_plural)} list"
     else:
         page, scope, opts = "general", "Help desk", None
 

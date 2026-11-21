@@ -77,13 +77,12 @@ def ask(messages):
         timeout=settings.ASSISTANT_TIMEOUT_SECONDS,
         max_retries=1,
     )
+    options = {"max_completion_tokens": 400}
+    if settings.ASSISTANT_TEMPERATURE:
+        options["temperature"] = float(settings.ASSISTANT_TEMPERATURE)
     try:
         response = client.chat.completions.create(
-            model=settings.OPENAI_MODEL,
-            messages=messages,
-            max_completion_tokens=400,
-            # Low randomness: answers should be consistent and stick to the reference.
-            temperature=0.2,
+            model=settings.OPENAI_MODEL, messages=messages, **options
         )
     except openai.APITimeoutError:
         logger.warning("Assistant request timed out")

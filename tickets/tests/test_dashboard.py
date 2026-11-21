@@ -69,10 +69,10 @@ def test_workload_ranks_agents_and_links_to_their_tickets(make_ticket, make_agen
     assert f"assignee__id__exact={busy.pk}" in rows[0]["url"]
 
 
-def test_dashboard_page_stays_within_a_query_budget(login_as, make_ticket):
+def test_dashboard_page_stays_within_a_query_budget(login_as, make_ticket, make_agent):
     client = login_as(SUPPORT_ADMIN)
     for _ in range(5):
-        make_ticket()
+        make_ticket(status=Status.OPEN, assignee=make_agent())
 
     with CaptureQueriesContext(connection) as queries:
         response = client.get(reverse("admin:index"))

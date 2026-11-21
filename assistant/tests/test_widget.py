@@ -29,3 +29,10 @@ def test_widget_is_not_on_the_login_page(client):
     page = client.get(reverse("admin:login")).content.decode()
 
     assert "rh-assistant" not in page
+
+
+def test_popups_keep_django_titles_and_skip_the_widget(login_as):
+    page = login_as(AGENT).get(reverse("admin:tickets_customer_changelist") + "?_popup=1")
+
+    assert page.context["title"] == "Select customer"
+    assert "rh-assistant" not in page.content.decode()

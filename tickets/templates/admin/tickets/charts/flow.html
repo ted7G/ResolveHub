@@ -7,7 +7,7 @@
   <header class="rh-chart-head">
     <div>
       <h2 id="flow-title">Ticket flow</h2>
-      <p>Created and resolved per day, last {{ flow.days }} days (today so far)</p>
+      <p>Created and resolved per day, last {{ flow.days }} days ({{ flow.zone }} days; today so far)</p>
     </div>
     <ul class="rh-legend">
       <li><span class="rh-key rh-key-line is-created" aria-hidden="true"></span>Created <strong>{{ flow.created_total }}</strong></li>

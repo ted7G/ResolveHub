@@ -10,10 +10,14 @@ exactly what they can act on. Field values and record contents are never
 included: the model learns how the page works, not what any customer wrote.
 """
 
+import copy
+
 from django import forms
 from django.contrib import admin
+from django.contrib.admin.filters import RelatedFieldListFilter
 from django.contrib.admin.utils import label_for_field
 from django.core.exceptions import FieldDoesNotExist
+from django.http import QueryDict
 from django.utils.html import strip_tags
 from django.utils.text import capfirst
 
@@ -64,7 +68,7 @@ def build_form_reference(model_admin, request, obj=None):
             lines.append(_describe_field(name, field))
 
     lines.append("\nAbout this person and record:")
-    lines.extend(f"- {note}" for note in _access_notes(model_admin, request, obj))
+    lines.extend(f"- {note}" for note in _access_notes(model_admin, request, obj, "form"))
 
     _append_rules(lines, model)
     return "\n".join(lines), labels
@@ -87,7 +91,11 @@ def build_list_reference(model_admin, request):
         help_text = model_admin.search_help_text or ""
         lines.append(f"\nSearch: the box above the table searches as you type. {help_text}")
 
-    changelist = model_admin.get_changelist_instance(request)
+    # The list as it first opens: the assistant request's own query string
+    # must not reach ChangeList, where a bad lookup would raise.
+    list_request = copy.copy(request)
+    list_request.GET = QueryDict()
+    changelist = model_admin.get_changelist_instance(list_request)
     if changelist.filter_specs:
         lines.append(
             "\nFilters: there is one button per filter above the table, named after the "
@@ -97,12 +105,17 @@ def build_list_reference(model_admin, request):
             "Clear all filters removes them. The filters are:"
         )
         for spec in changelist.filter_specs:
+            title = capfirst(str(spec.title))
             choices = [str(c["display"]) for c in spec.choices(changelist)]
             choices = [c for c in choices if c != "All"]
+            if isinstance(spec, RelatedFieldListFilter):
+                # Names of people and labels are records too: count, don't list.
+                lines.append(f"- {title}: one option per {spec.title} ({len(choices)} options).")
+                continue
             listed = ", ".join(choices[:MAX_LISTED_CHOICES])
             extra = len(choices) - MAX_LISTED_CHOICES
             more = f" and {extra} more" if extra > 0 else ""
-            lines.append(f"- {capfirst(str(spec.title))}: {listed}{more}.")
+            lines.append(f"- {title}: {listed}{more}.")
     if model_admin.date_hierarchy:
         field = opts.get_field(model_admin.date_hierarchy)
         lines.append(
@@ -125,7 +138,7 @@ def build_list_reference(model_admin, request):
         lines.append(f"\nThe Add button at the top right creates a new {opts.verbose_name}.")
 
     lines.append("\nAbout this person:")
-    lines.extend(f"- {note}" for note in _access_notes(model_admin, request, None))
+    lines.extend(f"- {note}" for note in _access_notes(model_admin, request, None, "list"))
     lines.extend(f"- {line}" for line in _abilities(request.user))
     _append_rules(lines, model_admin.model)
     return "\n".join(lines)
@@ -218,7 +231,7 @@ def _abilities(user):
     return lines
 
 
-def _access_notes(model_admin, request, obj):
+def _access_notes(model_admin, request, obj, page):
     """
     What this person may do here, so "why can't I...?" gets the real reason.
     A model admin can add its own notes with an `assistant_notes` method.
@@ -228,7 +241,7 @@ def _access_notes(model_admin, request, obj):
         notes.append("They can view this record but not change it.")
     extra = getattr(model_admin, "assistant_notes", None)
     if extra:
-        notes.extend(extra(request, obj))
+        notes.extend(extra(request, obj, page))
     return notes
 
 
