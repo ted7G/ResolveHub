@@ -14,9 +14,10 @@ response deadlines, and the conversation lives on the ticket.
 
 Password for all three: `12345678`, kept simple for the demo. The seed sets
 it directly; passwords set in the admin must be 10+ characters. Five wrong
-passwords lock a login for 15 minutes from that address. "Help with this
-form" on add/edit pages is the AI helper. GitHub sign-in works after you
-link GitHub from "GitHub sign-in" in the header.
+passwords lock a login for 15 minutes from that address. The AI assistant
+is **Ask AI** in the header (or the round button at the bottom right) on
+every page. GitHub sign-in works after you link it from the menu under your
+name.
 
 ## Stack and why
 
@@ -58,10 +59,12 @@ Customer 1──* Ticket *──1 Agent 1──1 User
   why, and write to the admin history.
 - **Look and feel** (`static/resolvehub/`, `templates/admin/`): the admin's
   own templates and CSS variables, restyled rather than replaced. Header
-  navigation, a dashboard whose numbers link to the matching filtered list,
-  the conversation as a chat thread, searchable dropdowns (the Select2 copy
-  that ships with the admin) and search boxes on long filter lists, light
-  and dark themes, and phone layouts. Fonts are served by the app itself.
+  navigation; a dashboard with live numbers and charts (ticket flow, load by
+  priority, team workload), each linking to the matching filtered list
+  (`tickets/dashboard.py`); filters as buttons above the table; search as
+  you type; the conversation as a chat thread; searchable dropdowns (the
+  Select2 copy that ships with the admin); light and dark themes; phone
+  layouts. Chart colours were checked for colour-blind separation.
 - **Roles** (`accounts/roles.py`, synced by `manage.py setup_roles`):
 
   | | Support admin | Agent | Viewer |
@@ -81,11 +84,15 @@ Customer 1──* Ticket *──1 Agent 1──1 User
   second way into an existing account its owner linked while signed in.
   Unknown GitHub accounts are refused, nothing is matched by email, and
   roles stay on the Django user, so OAuth can't grant access.
-- **AI helper** (`assistant/`): the prompt is built from the form the user
-  actually has open (labels, help text, choices valid for this record and
-  role) plus the ticket rules. Record contents are never sent; related
+- **AI assistant** (`assistant/`): on every page, with a reference built
+  for that page. On a form: labels, help text and the choices valid for
+  this record and role. On a list: columns, filters, search and the bulk
+  actions this person has. Elsewhere: the dashboard, sections and roles.
+  It also gets the person's role, what they may change and why not, the
+  ticket's current status and where it can go next, plus the last three
+  exchanges for follow-ups. Record contents are never sent; related
   dropdowns are counted, not listed. Timeouts, rate limits, bad keys and
-  provider errors return a short message in the widget, and the admin
+  provider errors return a short message in the panel, and the admin
   never depends on the call. Staff only, CSRF-protected, 500-character
   questions, 6 a minute and 100 a day per user.
 
@@ -116,7 +123,7 @@ python manage.py migrate
 python manage.py createcachetable
 python manage.py seed              # prints the demo password unless --password is given
 python manage.py runserver
-pytest                             # about 185 tests
+pytest                             # about 200 tests
 ```
 
 `seed` creates 400 customers, 3,000 tickets over six months, about 12,700
