@@ -181,10 +181,12 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # The admin theme and its fonts, served from the app rather than a font CDN.
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
-# Attachments are capped at 5 MB (see tickets.validators). Keeping the
-# in-memory threshold slightly above that means accepted uploads are streamed
-# straight to object storage without touching a temp file on local disk.
-FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
+# Uploads stay in memory and are cut off just past the 5 MB attachment limit
+# (see tickets.uploads), so nothing is written to local disk, even for a
+# file that is too large. The app sends one file per request; capping the
+# count bounds the memory a single request can take.
+FILE_UPLOAD_HANDLERS = ["tickets.uploads.CappedMemoryUploadHandler"]
+DATA_UPLOAD_MAX_NUMBER_FILES = 5
 
 
 # --- Auth and sessions ------------------------------------------------------

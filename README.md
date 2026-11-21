@@ -100,7 +100,8 @@ Customer 1──* Ticket *──1 Agent 1──1 User
   reads the client IP the proxy appended, so a forged `X-Forwarded-For`
   can't dodge it.
 - Uploads: PDF, images, TXT/LOG/CSV only, 5 MB max, and the file's first
-  bytes must match its extension. Stored under random names in a private
+  bytes must match its extension. Uploads are held in memory and cut off just
+  past the limit, so even an oversized file never touches local disk. Stored under random names in a private
   bucket and removed when their message or ticket is deleted.
 - Secrets only from environment variables; settings refuse to start in
   production without a database, storage credentials or a secret key, and
