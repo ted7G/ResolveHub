@@ -5,6 +5,7 @@ from django.utils.html import format_html
 from tickets.models import Agent, Comment, Ticket
 from tickets.permissions import can_edit_ticket
 from tickets.rules import Status
+from tickets.validators import ATTACHMENT_ACCEPT
 
 from . import display
 from .forms import TicketAdminForm
@@ -85,6 +86,8 @@ class AddCommentInline(admin.StackedInline):
             if can_see_internal_notes(request.user):
                 placeholder += ", or an internal note for the team"
             field.widget.attrs.update(rows=5, placeholder=placeholder)
+        elif db_field.name == "attachment":
+            field.widget.attrs["accept"] = ATTACHMENT_ACCEPT
         return field
 
     def get_fields(self, request, obj=None):

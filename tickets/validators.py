@@ -27,6 +27,11 @@ ALLOWED_ATTACHMENT_TYPES: dict[str, tuple[bytes, ...] | None] = {
     ".csv": None,
 }
 
+# For the file input's `accept` attribute, so the picker only offers these
+# types. Only a hint: a user can still choose "All files", and
+# validate_attachment below is what actually enforces the list.
+ATTACHMENT_ACCEPT = ",".join(ALLOWED_ATTACHMENT_TYPES)
+
 ATTACHMENT_HELP_TEXT = (
     "Optional screenshot, log or document. Allowed: "
     + ", ".join(ext.lstrip(".").upper() for ext in ALLOWED_ATTACHMENT_TYPES if ext != ".jpeg")

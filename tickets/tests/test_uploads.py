@@ -40,12 +40,51 @@ def test_oversized_upload_reports_its_real_size_but_keeps_only_the_limit():
     assert len(upload.read()) == KEEP_BYTES
 
 
-@pytest.mark.django_db
-def test_oversized_attachment_is_rejected_on_the_ticket_page(
-    superuser_client, make_ticket, make_agent
-):
+@pytest.fixture
+def ticket_url(make_ticket, make_agent):
     ticket = make_ticket(status=Status.OPEN, assignee=make_agent())
-    url = reverse("admin:tickets_ticket_change", args=[ticket.pk])
+    return reverse("admin:tickets_ticket_change", args=[ticket.pk])
+
+
+@pytest.mark.django_db
+def test_file_picker_offers_only_the_allowed_types(superuser_client, ticket_url):
+    html = superuser_client.get(ticket_url).content.decode()
+
+    assert (
+        'type="file" name="comments-2-0-attachment" '
+        'accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.log,.csv"' in html
+    )
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    ("name", "content"),
+    [
+        ("resume.docx", b"PK\x03\x04" + b"\x00" * 64),
+        ("setup.exe", b"MZ\x90\x00" + b"\x00" * 64),
+        ("page.html", b"<script>alert(1)</script>"),
+        ("logo.svg", b"<svg onload='alert(1)'/>"),
+        ("tool.js", b"alert(1)"),
+        ("photo.png", b"MZ\x90\x00" + b"\x00" * 64),  # an executable renamed
+    ],
+)
+def test_disallowed_files_are_refused_on_the_ticket_page(
+    superuser_client, ticket_url, name, content
+):
+    # "All files" can still be picked in the dialog; the server decides.
+    data = admin_form_data(superuser_client.get(ticket_url))
+    data["comments-2-0-body"] = "See attached."
+    data["comments-2-0-attachment"] = SimpleUploadedFile(name, content)
+
+    response = superuser_client.post(ticket_url, data)
+
+    assert response.status_code == 200
+    assert not Comment.objects.exists()
+
+
+@pytest.mark.django_db
+def test_oversized_attachment_is_rejected_on_the_ticket_page(superuser_client, ticket_url):
+    url = ticket_url
     data = admin_form_data(superuser_client.get(url))
     data["comments-2-0-body"] = "Full-resolution screenshot attached."
     data["comments-2-0-attachment"] = SimpleUploadedFile(
