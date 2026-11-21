@@ -178,20 +178,8 @@
         update();
     }
 
-    // The result count ("129 results (Show all)") describes the page, so it
-    // sits next to the title and leaves the toolbar row to filters and search.
-    function moveResultCount() {
-        const count = document.querySelector("#changelist #toolbar .small.quiet");
-        const heading = document.querySelector("#content h1");
-        if (count && heading) {
-            count.classList.add("rh-result-count");
-            heading.append(count);
-        }
-    }
-
     function start() {
-        liveSearch(); // reads the page title, so before the count joins it
-        moveResultCount();
+        liveSearch();
         actionBar();
     }
 
